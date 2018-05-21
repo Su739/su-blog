@@ -1,0 +1,74 @@
+.book-pinned {
+  list-style: none;
+  width: 300px;
+  height: 158px;
+  margin: 10px 10px;
+  border: 1px solid #28a745;
+  border-radius: 5px;
+  position: relative;
+}
+.book-pinned-actived {
+
+}
+.book-pinned-content {
+  position: absolute;
+  top: 15px;
+  right: 12px;
+  bottom: 15px;
+  left: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.book-pinned-title {
+  width:200px;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  display: block;
+}
+.book-pinned-post-date {
+  font-size: 11px;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+.book-pinned-description {
+  font-size: 12px;
+  margin-right: 88px;
+  word-wrap: break-word;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+.book-pinned-cover {
+  position: absolute;
+  width: 70px;
+  height: 90px;
+  top: 15px;
+  right: 12px;
+}
+.book-pinned-dash {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 32px;
+  background-color: rgba(108, 117, 125, 0.2);
+  opacity: 0;
+}
+.book-pinned-dash button {
+  display: inline;
+  padding: 0;
+  background: none;
+  border: none;
+  color: white;
+  padding: 6px;
+}
+.book-pinned-dash button:hover {
+  color: #007bff;
+}
+.book-pinned:hover .book-pinned-dash{
+  opacity: 1;
+}

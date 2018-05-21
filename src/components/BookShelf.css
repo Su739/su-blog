@@ -1,0 +1,119 @@
+:root {
+  --blue: #007bff;
+  --indigo: #6610f2;
+  --purple: #6f42c1;
+  --pink: #e83e8c;
+  --red: #dc3545;
+  --orange: #fd7e14;
+  --yellow: #ffc107;
+  --green: #28a745;
+  --teal: #20c997;
+  --cyan: #17a2b8;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #343a40;
+  --primary: #007bff;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #343a40;
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.shelf-container {
+  border: 2px solid #343a40;
+  position: relative;
+  padding: 5px;
+  overflow-x: unset;
+  overflow-y: auto;
+  height: 100%;
+  background-color: #fff;
+}
+.shelf-books-place {
+  display: flex;
+  justify-content: start;
+  flex-flow: wrap;
+  padding: 0;
+}
+.book-pinned {
+  list-style: none;
+  width: 300px;
+  height: 158px;
+  margin: 10px 10px;
+  border: 1px solid #28a745;
+  border-radius: 5px;
+  position: relative;
+}
+.book-pinned-actived {
+
+}
+.book-pinned-content {
+  position: absolute;
+  top: 15px;
+  right: 12px;
+  bottom: 15px;
+  left: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.book-pinned-title {
+  width:200px;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  display: block;
+}
+.book-pinned-post-date {
+  font-size: 11px;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+.book-pinned-description {
+  font-size: 12px;
+  margin-right: 88px;
+  word-wrap: break-word;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+.book-pinned-cover {
+  position: absolute;
+  width: 70px;
+  height: 90px;
+  top: 15px;
+  right: 12px;
+}
+.book-pinned-dash {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 32px;
+  background-color: rgba(108, 117, 125, 0.2);
+  opacity: 0;
+}
+.book-pinned-dash button {
+  display: inline;
+  padding: 0;
+  background: none;
+  border: none;
+  color: white;
+  padding: 6px;
+}
+.book-pinned-dash button:hover {
+  color: #007bff;
+}
+.book-pinned:hover .book-pinned-dash{
+  opacity: 1;
+}

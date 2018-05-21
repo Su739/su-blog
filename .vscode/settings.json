@@ -1,0 +1,21 @@
+{
+  "editor.tabSize": 2,
+  "window.zoomLevel": 1,
+  "editor.minimap.enabled": false,
+  "explorer.confirmDelete": false,
+  "editor.fontSize": 14,
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#8745f1",
+    "statusBar.foreground": "#ebe0e0"
+  },
+  "workbench.iconTheme": "vscode-icons",
+  "workbench.colorTheme": "Atom One Dark",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "javascript.format.enable": false,
+  "prettier.eslintIntegration": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.alwaysShowStatus": true
+}

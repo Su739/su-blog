@@ -1,0 +1,17 @@
+.preview-container {
+  padding: 5px 15px;
+}
+.title {
+  text-align: center;
+  width: 60%;
+  border-bottom: 2px solid grey;
+  margin: 0.67em auto 1em auto;
+}
+.article-pane {
+  padding-top: 64px;
+}
+@media (min-width: 768px) {
+  .article-pane {
+    margin: 0 0 0 300px;
+  }
+}

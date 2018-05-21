@@ -1,0 +1,15 @@
+{
+  "presets": ["es2015", "stage-0"],
+  "plugins": [
+    "transform-runtime",
+    [
+      "transform-imports",
+      {
+        "redux-form": {
+          "transform": "redux-form/es/${member}",
+          "preventFullImport": true
+        }
+      }
+    ]
+  ]
+}

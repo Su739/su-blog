@@ -1,0 +1,45 @@
+.catalog-list {
+  width: 100%;
+  padding: 5px 10px 0 0;
+}
+.catalog-item:hover {
+  background-color: rgba(200, 200, 200, 0.2);
+}
+.catalog-item:hover .catalog-item-tool {
+  visibility: visible;
+}
+.catalog-item {
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+}
+.catalog-item-link {
+  font-size: 18px;
+  font-weight: 500;
+  flex: 1 1 auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: monospace;
+}
+.catalog-item-link a {
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.8);
+}
+.catalog-item-expand-btn {
+  cursor: pointer;
+  outline: none;
+  font-weight: 200;
+  line-height: 0;
+  border: none;
+  background: none;
+  padding: 6px;
+  height: 48px;
+  vertical-align: middle;
+}
+.catalog-item-tool {
+  visibility: hidden;
+}
+.catalog-item-link-actived {
+  color: blue;
+}
