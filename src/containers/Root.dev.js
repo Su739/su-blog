@@ -1,47 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Route, BrowserRouter as Router } from 'react-router-dom';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'; // v1.x
+import { MuiThemeProvider as V0MuiThemeProvider } from 'material-ui';
 import DevTools from './DevTools';
 // import UserPage from './UserPage';
-import NavBar from './NavBar';
-import ArticlePage from './ArticlePage';
-import LoginForm from './LoginForm';
-import Error404 from '../components/Error404';
+import HomePage from './view/HomePage';
 
 
 const Root = ({ store }) => (
   <Provider store={store}>
     <div>
       <Router>
-        <MuiThemeProvider muiTheme={getMuiTheme()}>
-          <div>
-            <Route Path="/" component={NavBar} />
-            <Route Path="/" component={LoginForm} />
-            <Switch>
-              <Route exact path="/" render={() => <div>Home</div>} />
-              <Route
-                path="/:username"
-                render={
-                  ({ match }) => (
-                    <div className="content">
-                      <Switch>
-                        <Route exact path={match.url} render={() => <div>等一个UserPage</div>} />
-                        <Route
-                          path="/:username/book/:bookid"
-                          component={ArticlePage}
-                        />
-                        <Route path="/" component={Error404} />
-                      </Switch>
-                    </div>
-                  )
-                }
-              />
-              <Route path="/" component={Error404} />
-            </Switch>
-          </div>
+        <MuiThemeProvider theme={createMuiTheme()}>
+          <V0MuiThemeProvider muiTheme={getMuiTheme()}>
+            <div>
+              <Route Path="/" component={HomePage} />
+            </div>
+          </V0MuiThemeProvider>
         </MuiThemeProvider>
       </Router>
       <DevTools />

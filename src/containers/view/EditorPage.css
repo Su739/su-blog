@@ -1,0 +1,55 @@
+.editor-page {
+}
+.editor-container {
+  flex: 1;
+  overflow-y: scroll;
+}
+.editor-previewer {
+  flex: 1;
+  overflow: auto;
+}
+.editor-and-previewer {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+.CodeMirror {
+  width: auto;
+  height: auto;
+  cursor: text;
+  padding-left: 20px;
+  font-size: 16px;
+}
+.tool-wall {
+  background-color: rgb(197, 197, 197);
+  z-index: 1;
+  transform: translateX(-15px);
+  width: 36px;
+  height: 100%;
+}
+.tool-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: 100px 0;
+  color: #a58d04;
+  height: calc(100% - 200px);
+}
+.tool-box-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tool-box-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .editor-page {
+    margin: 0 0 0 20%;
+  }
+}

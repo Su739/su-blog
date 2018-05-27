@@ -4,34 +4,39 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import Preview from '../components/Preview';
+import Error404 from '../components/Error404';
 
 const { loadArticle } = actions;
 
 class PreviewContainer extends React.Component {
   static propTypes = {
-    book: PropTypes.objectOf(PropTypes.any),
     articleid: PropTypes.number,
     article: PropTypes.objectOf(PropTypes.any),
     isFetching: PropTypes.bool,
-    loadArticle: PropTypes.func
+    loadArticle: PropTypes.func,
+    error: PropTypes.objectOf(PropTypes.any)
   };
   componentDidMount() {
     const {
       articleid, article
     } = this.props;
-    if ((!article || !article.content) && articleid) {
+    console.log(this.props);
+    if ((!article || !article.content) && !Number.isNaN(articleid)) {
       this.props.loadArticle(articleid);
     }
   }
   componentDidUpdate(prevProps) {
-    if (prevProps.articleid !== this.props.articleid) {
+    if (!Number.isNaN(this.props.articleid) && prevProps.articleid !== this.props.articleid) {
       this.props.loadArticle(this.props.articleid);
     }
   }
   render() {
-    const { isFetching, article, book } = this.props;
+    const { isFetching, article, error } = this.props;
+    if (error) {
+      return <Error404 />;
+    }
     return (
-      <Preview isFetching={isFetching} article={article || book.description} />
+      { article } && <Preview isFetching={isFetching} article={article || { content: '' }} />
     );
   }
 }
@@ -43,24 +48,25 @@ const mapStateToProps = (state, ownProps) => {
       articles, books
     },
     result,
+    requestError: error,
     ui: { preview: { isFetching } }
   } = state;
 
-  const book = books[bookid];
   let readmeid = null;
   if (!articleid) {
-    if (!book) {
-      throw new Error('book最少有一篇depth为-1的readme');
+    // books[bookid].articles这句可以判断loadArticles是否执行, 总感觉要想想其他办法，不这么干
+    if (books && books[bookid] && books[bookid].articles) {
+      ([readmeid] = books[bookid].articles.filter(a => articles[a].superior === -1));
+      // throw new Error('book最少有一篇depth为-1的readme');
     }
-    ([readmeid] = book.articles.filter(a => articles[a].superior === -1));
   }
-  const article = articles[articleid || readmeid];
+  const article = articles ? articles[articleid || readmeid] : null;
 
   return {
-    book,
     articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
     article,
     isFetching,
+    error,
     result
   };
 };

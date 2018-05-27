@@ -6,20 +6,18 @@ import { Field, reduxForm, propTypes } from 'redux-form';
 import axios from 'axios';
 import FlatButton from 'material-ui/FlatButton';
 import CircularProgress from 'material-ui/CircularProgress';
-import actions from '../actions';
-import MaterialField from '../components/reduxFormFieldComponent/MaterialField';
-import AuthFormPane from '../components/AuthFormPane';
-import rootUrls from '../utils/rootUrl';
+import actions from '../../actions';
+import MaterialField from '../../components/reduxFormFieldComponent/MaterialField';
+import AuthFormPane from '../../components/AuthFormPane';
+import rootUrls from '../../utils/rootUrl';
 
 const { MaterialTextField } = MaterialField;
 
-const loginSubmit = ({ username, password }) => {
-  console.log(username); return axios.post(`${rootUrls}/auth/login`, { username, password }, { withCredentials: true });
-};
+const loginSubmit = ({ username, password }) => axios.post(`${rootUrls}/auth/login`, { username, password }, { withCredentials: true });
 
 const LoginForm = (props) => {
   const {
-    displayLoginForm, submitting, pristine, isLogged, loginForm,
+    displayLoginForm, submitting, pristine, isLogged,
     handleSubmit, toggleLoginForm
   } = props;
 
@@ -75,15 +73,13 @@ LoginForm.propTypes = {
 const mapStateToProps = (state) => {
   const {
     auth: { isLogged, refreshAuthentication },
-    ui: { popwindow: { displayLoginForm } },
-    form: { loginForm }
+    ui: { popwindow: { displayLoginForm } }
   } = state;
 
   return {
     isLogged,
     refreshAuthentication,
-    displayLoginForm,
-    loginForm
+    displayLoginForm
   };
 };
 

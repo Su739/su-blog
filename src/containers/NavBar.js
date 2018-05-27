@@ -35,6 +35,15 @@ class NavBar extends React.Component {
       loadUser(ownerName);
     }
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.ownerName !== this.props.ownerName) {
+      this.props.loadUser(this.props.ownerName);
+    }
+    if (prevProps.loginName !== this.props.loginName) {
+      this.props.loadUser(this.props.loginName);
+    }
+  }
+
   componentWillUnmount() {
     // eslint-disable-next-line no-undef
     window.removeEventListener('resize', this.handleResize);

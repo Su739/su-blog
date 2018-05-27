@@ -28,7 +28,7 @@ const Preview = (props) => {
 
 Preview.propTypes = {
   isFetching: PropTypes.bool,
-  article: PropTypes.objectOf(PropTypes.any),
+  article: PropTypes.objectOf(PropTypes.any)
 };
 
 export default Preview;

@@ -9,7 +9,7 @@ const {
   }
 } = actions;
 
-const auth = (state = { isLogged: false, loginName: null }, action) => {
+const auth = (state = { isLogged: true, loginName: null }, action) => {
   if (action.type === authTypes.REFRESH_AUTHENTICATION) {
     return {
       ...state,
@@ -140,12 +140,31 @@ const preview = (state = { isFetching: false }, action) => {
   }
 };
 
+const editor = (state = { isFetching: false }, action) => {
+  switch (action.type) {
+    case articleTypes.ARTICLE_REQUEST:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case articleTypes.ARTICLE_FAILURE:
+    case articleTypes.ARTICLE_SUCCESS:
+      return {
+        ...state,
+        isFetching: false
+      };
+    default:
+      return state;
+  }
+};
+
 const ui = combineReducers({
   navbar,
   preview,
   screen,
   catalog,
-  popwindow
+  popwindow,
+  editor
 });
 // #endregion
 

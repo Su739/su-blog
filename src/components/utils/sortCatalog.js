@@ -1,26 +1,26 @@
 const data = { // eslint-disable-line
   10: {
-    uid: 10, pa: 9, depth: 1, data: '1', order: 1,
+    uid: 10, pa: 9, depth: 1, data: '1', order: 1
   },
   9: {
-    uid: 9, pa: 0, depth: 0, data: '1', order: 2,
+    uid: 9, pa: 0, depth: 0, data: '1', order: 2
   },
   8: {
-    uid: 8, pa: 1, depth: 1, data: '1', order: 1,
+    uid: 8, pa: 1, depth: 1, data: '1', order: 1
   },
   4: {
-    uid: 4, pa: 3, depth: 3, data: '1', order: 1,
+    uid: 4, pa: 3, depth: 3, data: '1', order: 1
   },
   1: {
-    uid: 1, pa: 0, depth: 0, data: '1', order: 1,
+    uid: 1, pa: 0, depth: 0, data: '1', order: 1
   },
 
   2: {
-    uid: 2, pa: 1, depth: 1, data: '1', order: 2,
+    uid: 2, pa: 1, depth: 1, data: '1', order: 2
   },
   3: {
-    uid: 3, pa: 8, depth: 2, data: '1', order: 1,
-  },
+    uid: 3, pa: 8, depth: 2, data: '1', order: 1
+  }
 };
 
 /** 将上面这种格式的数据按照superior分类

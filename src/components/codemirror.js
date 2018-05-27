@@ -37,12 +37,12 @@ class CodeMirrorEditor extends React.Component {
     onChange: PropTypes.func,
     forceTextArea: PropTypes.bool,
     textAreaStyle: PropTypes.string,
-    readOnly: PropTypes.bool,
+    readOnly: PropTypes.bool
   };
   constructor(props) {
     super(props);
     this.state = {
-      isControlled: this.props.value !== null,
+      isControlled: this.props.value !== null
     };
     this.editor = null;
     this.setEditor = this.setEditor.bind(this);
@@ -51,6 +51,11 @@ class CodeMirrorEditor extends React.Component {
   setEditor(elem) {
     this.editor = elem;
   }
+
+  // Various CodeMirror-related objects emit events,
+  // which allow client code to react to various situations.
+  // Handlers for such events can be registered with the
+  // on and off methods on the objects that the event fires on.
   componentDidMount() {
     const isTextArea = this.props.forceTextArea || IS_MOBILE;
     if (!isTextArea) {
@@ -69,12 +74,16 @@ class CodeMirrorEditor extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.editor.off('change', this.handleChange);
+  }
+
   handleChange() {
     console.log(this);
     if (this.editor) {
       const value = this.editor.getValue();
       if (value !== this.props.value) {
-        this.props.onChange({ target: { value } });
+        this.props.onChange(value);
         if (this.editor.getValue() !== this.props.value) {
           if (this.state.isControlled) {
             this.editor.setValue(this.props.value);
@@ -93,7 +102,7 @@ class CodeMirrorEditor extends React.Component {
       readOnly,
       className,
       onChange,
-      textAreaStyle,
+      textAreaStyle
     } = this.props;
     return (
       <div style={this.props.style} className={this.props.className}>

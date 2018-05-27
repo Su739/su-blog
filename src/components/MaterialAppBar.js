@@ -70,14 +70,17 @@ const MaterialAppBar = ({
   if (isFetching) {
     return (
       <AppBar
+        style={{ position: 'fixed', top: '0' }}
         title={<TitleOnLoading />}
         titleStyle={{ display: 'flex', alignItems: 'center' }}
+        showMenuIconButton={screenWidth < 768}
       />
     );
   }
   return (
     <div>
       <AppBar
+        style={{ position: 'fixed', top: '0' }}
         title={
           blogOwner
           ?
@@ -103,7 +106,6 @@ const MaterialAppBar = ({
               refreshAuthentication={refreshAuthentication}
             />
           : <FlatButton label="登录" onClick={() => toggleLoginForm(true)} />}
-        style={{ position: 'fixed' }}
       />
     </div>
   );

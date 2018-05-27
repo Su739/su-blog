@@ -11,7 +11,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      toEditBookId: null,
+      toEditBookId: null
     }; // init state
     this.onContentChange = this.onContentChange.bind(this);
     this.loadContent = this.loadContent.bind(this); // 请求并加载文章
@@ -42,15 +42,15 @@ class App extends React.Component {
     this.setState({
       curArticle: {
         title: '# Wow loaded',
-        content: '# Wow loaded',
-      },
+        content: '# Wow loaded'
+      }
     });
   }
   onContentChange(e) {
     this.setState({
       curArticle: {
-        content: e.target.value,
-      },
+        content: e.target.value
+      }
     });
   }
   render() {
@@ -60,7 +60,7 @@ class App extends React.Component {
       bookList,
       curBook,
       curArticle: { title, content },
-      toEditBookId,
+      toEditBookId
     } = this.state;
     return (
       <div className="page-wrapper">

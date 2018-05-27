@@ -8,7 +8,7 @@ import CodeBlock from './CodeBlock';
 class TrackEditor extends React.Component {
   static propTypes = {
     content: PropTypes.string,
-    onContentChange: PropTypes.func,
+    onContentChange: PropTypes.func
   };
   /* static defaultProps = {
     content: placeholder,
