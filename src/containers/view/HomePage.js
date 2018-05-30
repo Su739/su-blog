@@ -6,11 +6,13 @@ import LoginForm from '../form/LoginForm';
 import Error404 from '../../components/Error404';
 import ArticlePage from './ArticlePage';
 import EditorPage from './EditorPage';
+import BlockedArticleDialog from '../BlockedArticleDialog';
 
 const HomePage = props => (
   <div>
     <NavBar {...props} />
     <LoginForm />
+
     <Switch>
       <Route exact path="/" render={() => <div>Home</div>} />
       <Route

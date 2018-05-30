@@ -1,11 +1,12 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
+import omit from 'lodash/omit';
 import merge from 'lodash/merge';
 import actions from '../actions';
 
 const {
   types: {
-    uiTypes, articleTypes, bookTypes, authTypes, userTypes
+    uiTypes, articleTypes, bookTypes, authTypes, userTypes, tempDataTypes
   }
 } = actions;
 
@@ -27,6 +28,24 @@ const entities = (state = { users: {}, books: {}, articles: {} }, action) => {
   }
 
   return state;
+};
+
+// store some temp data
+const tempData = (state = {}, action) => {
+  switch (action.type) {
+    case tempDataTypes.ADD_NEW_ARTICLE:
+      return { ...state, newArticle: action.newArticle };
+    case tempDataTypes.ADD_BLOCKED_ARTICLE:
+      return { ...state, blockedArticle: action.blockedArticle };
+    case tempDataTypes.DESTROY_NEW_ARTICLE:
+      return omit(state, ['newArticle']);
+    case tempDataTypes.DESTROY_BLOCKED_ARTICLE:
+      return omit(state, ['blockedArticle']);
+    case tempDataTypes.CLEAN_TEMP_DATA:
+      return {};
+    default:
+      return state;
+  }
 };
 
 // Updates an result by normalizd response.result to any action with response.result.
@@ -81,7 +100,7 @@ const navbar = (state = {
 };
 
 const popwindow = (state = {
-  displayLoginForm: false, displayRegisterForm: false
+  displayLoginForm: false, displayRegisterForm: false, displayBlockedModal: false
 }, action) => {
   switch (action.type) {
     case uiTypes.TOGGLE_LOGIN_FORM:
@@ -93,6 +112,11 @@ const popwindow = (state = {
       return {
         ...state,
         displayRegisterForm: action.displayRegisterForm
+      };
+    case uiTypes.TOGGLE_BLOCKED_MODAL:
+      return {
+        ...state,
+        displayBlockedModal: action.displayBlockedModal
       };
     default:
       return state;
@@ -187,7 +211,8 @@ const rootReducer = combineReducers({
   result,
   ui,
   requestError,
-  form: formReducer
+  form: formReducer,
+  tempData
 });
 
 export default rootReducer;

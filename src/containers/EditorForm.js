@@ -20,24 +20,36 @@ class EditorForm extends React.Component {
     loadArticle: PropTypes.func,
     articleid: PropTypes.number,
     dirty: PropTypes.bool,
-    handleSubmit: PropTypes.func
+    handleSubmit: PropTypes.func,
+    destroyNewArticle: PropTypes.func,
+    hasTemp: PropTypes.bool,
+    requestError: PropTypes.objectOf(PropTypes.any)
   }
   componentDidMount() {
-    const { articleid, loadArticle } = this.props;
-    loadArticle(articleid);
+    const { articleid, loadArticle, requestError } = this.props;
+    if (!requestError) {
+      loadArticle(articleid);
+    }
   }
   componentDidUpdate(prevProps) {
-    if (prevProps.articleid !== this.props.articleid) {
+    // -1是在新建文章时使用的id，要把他排除
+    if (prevProps.articleid !== this.props.articleid && this.props.articleid !== -1) {
       this.props.loadArticle(this.props.articleid);
     }
   }
 
   render() {
     console.log(this.props);
+    const {
+      handleSubmit, dirty, hasTemp, requestError, destroyNewArticle
+    } = this.props;
+    if (requestError) {
+      return <div>{requestError.message}</div>;
+    }
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form onSubmit={() => { destroyNewArticle(); handleSubmit(); }}>
         <Prompt
-          when={this.props.dirty}
+          when={dirty || hasTemp}
           message={location =>
             `Are you sure you want to go to ${location.pathname}`
           }
@@ -67,19 +79,25 @@ class EditorForm extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   const { articleid } = ownProps.match.params;
 
-  const { entities: { articles } } = state;
-  const article = articles && articles[articleid];
+  const { entities: { articles }, tempData: { article: tempArticle }, requestError } = state;
+  const article = tempArticle || (articles && articles[articleid]);
+  const hasTemp = !!tempArticle;
 
   return {
-    articleid,
-    initialValues: article
+    articleid: parseInt(articleid, 10),
+    initialValues: article,
+    requestError,
+    hasTemp
   };
 };
 
-const { loadArticle } = actions;
+const { loadArticle, destroyNewArticle, loadBook } = actions;
 
-export default withRouter(connect(mapStateToProps, { loadArticle })(reduxForm({
+export default withRouter(connect(mapStateToProps, { loadArticle, destroyNewArticle })(reduxForm({
   form: 'editorForm',
   enableReinitialize: true,
-  onSubmit: submitArticle
+  onSubmit: submitArticle,
+  onSubmitSuccess: (result, dispatch) => {
+    dispatch(loadBook(result.bookid));
+  }
 })(EditorForm)));

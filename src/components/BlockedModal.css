@@ -1,0 +1,21 @@
+.block-modal-cantaine {
+  background-color: #fff;
+  width: 400px;
+  margin: auto;
+  padding: 8px 0;
+  border-radius: 8px;
+}
+.block-modal-title {
+  color: rgb(102, 102, 102);
+  height: 32px;
+  font-size: 16px;
+  border-bottom: 1px solid rgb(230, 230, 230);
+  margin: auto;
+  text-align: center;
+}
+.button-group {
+  margin: 30px 50px;
+}
+.button-group > div {
+  margin: 15px 0;
+}

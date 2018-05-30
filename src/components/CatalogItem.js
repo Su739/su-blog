@@ -7,14 +7,13 @@ import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import Delete from 'material-ui/svg-icons/action/delete';
-import Pen from 'material-ui/svg-icons/editor/border-color';
 import Add from 'material-ui/svg-icons/content/add';
 import Collapse from 'material-ui/svg-icons/navigation/chevron-right';
 import Expand from 'material-ui/svg-icons/navigation/expand-more';
 
 
 const ItemTools = (props) => {
-  const { toolMethod: { newArticle, editArticle, deleteArticle } } = props;
+  const { toolMethod: { newArticle, deleteArticle } } = props;
   return (
     <IconMenu
       iconButtonElement={
@@ -28,7 +27,6 @@ const ItemTools = (props) => {
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
       <MenuItem onClick={newArticle} leftIcon={<Add />} primaryText="新文章" />
-      <MenuItem onClick={editArticle} leftIcon={<Pen />} primaryText="编辑" />
       <Divider />
       <MenuItem onClick={deleteArticle} leftIcon={<Delete />} primaryText="删除" />
     </IconMenu>
@@ -37,7 +35,6 @@ const ItemTools = (props) => {
 ItemTools.propTypes = {
   toolMethod: PropTypes.shape({
     newArticle: PropTypes.func,
-    editArticle: PropTypes.func,
     deleteArticle: PropTypes.func
   })
 };
@@ -60,7 +57,11 @@ class CatalogItem extends React.Component {
     expanded: PropTypes.objectOf(PropTypes.bool),
     expandable: PropTypes.objectOf(PropTypes.bool),
     superior: PropTypes.number,
-    isEditor: PropTypes.bool
+    isEditor: PropTypes.bool,
+    bySuperior: PropTypes.arrayOf(PropTypes.number),
+    hasTemp: PropTypes.bool,
+    toggleBlockedModal: PropTypes.func,
+    addBlockedArticle: PropTypes.func
   }
   static defaultProps = {
     url: '/123',
@@ -92,11 +93,20 @@ class CatalogItem extends React.Component {
   // 所以还要自己写selected。。。暂时没写，先写editor去
   render() {
     const {
-      selected, url, title, depth, expanded, id, expandable, superior, toolMethods, isEditor,
-      handleToggleCatalog
+      selected, expanded, isEditor, expandable, bySuperior, hasTemp,
+      url, title, depth, id, superior,
+      handleToggleCatalog, toggleBlockedModal, toolMethods, addBlockedArticle
     } = this.props;
     console.log(this.props);
     if (isEditor) {
+      const newArticle = () => {
+        if (hasTemp) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
+          toggleBlockedModal(true);
+          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '');
+        } else { // 立即新建一个文章
+          toolMethods.addNewArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '');
+        }
+      };
       return (
         <div className="catalog-item" style={{ paddingLeft: `${depth * 12}px` }}>
           <div className="catalog-item-link">
@@ -104,7 +114,11 @@ class CatalogItem extends React.Component {
               {title}
             </NavLink>
           </div>
-          <div className="catalog-item-tool"><ItemTools toolMethod={toolMethods} /></div>
+          <div className="catalog-item-tool">
+            <ItemTools
+              toolMethod={{ newArticle }}
+            />
+          </div>
         </div>
       );
     }
@@ -126,7 +140,6 @@ class CatalogItem extends React.Component {
             {title}
           </NavLink>
         </div>
-        <div className="catalog-item-tool"><ItemTools toolMethod={toolMethods} /></div>
       </div>
     );
   }

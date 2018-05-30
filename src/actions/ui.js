@@ -3,7 +3,14 @@ export const SCREEN_RESIZE = 'SCREEN_RESIZE';
 export const TOGGLE_EXPAND_BTN = 'TOGGLE_EXPAND_BTN';
 export const TOGGLE_LOGIN_FORM = 'TOGGLE_LOGIN_FORM';
 export const TOGGLE_REGISTER_FORM = 'TOGGLE_REGISTER_FORM';
+export const TOGGLE_BLOCKED_MODAL = 'TOGGLE_BLOCKED_MODAL';
 
+function toggleBlockedModal(display) {
+  return {
+    type: TOGGLE_BLOCKED_MODAL,
+    displayBlockedModal: display
+  };
+}
 
 function toggleLoginForm(display) {
   return {
@@ -41,5 +48,10 @@ function screenResize(width) {
 }
 
 export default {
-  toggleCatalog, screenResize, toggleExpandBtn, toggleLoginForm, toggleRegisterForm
+  toggleCatalog,
+  screenResize,
+  toggleExpandBtn,
+  toggleLoginForm,
+  toggleRegisterForm,
+  toggleBlockedModal
 };

@@ -6,12 +6,17 @@ import MaterialCatalog from '../components/MaterialCatalog';
 
 class CatalogContainer extends React.Component {
   static propTypes = {
+    hasTemp: PropTypes.bool,
     isEditor: PropTypes.bool,
     expanded: PropTypes.objectOf(PropTypes.bool),
     toggleExpandBtn: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
     refreshAuthentication: PropTypes.func.isRequired,
     toggleCatalog: PropTypes.func.isRequired,
+    toggleBlockedModal: PropTypes.func,
+    addNewArticle: PropTypes.func,
+    destroyNewArticle: PropTypes.func,
+    addBlockedArticle: PropTypes.func,
     isFetching: PropTypes.bool,
     url: PropTypes.string,
     // loadUser: PropTypes.func.isRequired,
@@ -31,14 +36,17 @@ class CatalogContainer extends React.Component {
     loadBook(bookid);
   }
   componentDidUpdate(prevProps) {
-    if (prevProps.bookid !== this.props.bookid) {
+    console.log(this.props.bookid);
+    if (prevProps.bookid !== this.props.bookid && Number.isInteger(this.props.bookid)) {
       this.props.loadBook(this.props.bookid);
     }
   }
   render() {
     const {
-      bookArticles, isFetching, displayCatalog, screenWidth, expanded, url, isEditor,
-      toggleCatalog, toggleExpandBtn
+      bookArticles, isFetching, displayCatalog, screenWidth,
+      expanded, url, isEditor, hasTemp,
+      toggleCatalog, toggleExpandBtn, toggleBlockedModal,
+      destroyNewArticle, addBlockedArticle, addNewArticle
     } = this.props;
     return (
       <MaterialCatalog
@@ -51,6 +59,10 @@ class CatalogContainer extends React.Component {
         expanded={expanded}// 目录中被折叠的项目
         url={url}
         isEditor={isEditor}
+        toolMethods={{ addNewArticle, destroyNewArticle }}
+        toggleBlockedModal={toggleBlockedModal}
+        hasTemp={hasTemp}
+        addBlockedArticle={addBlockedArticle}
       />
     );
   }
@@ -62,8 +74,12 @@ const mapStateToProps = (state, ownProps) => {
     entities: {
       books, articles
     },
+    tempData: { newArticle },
     result,
-    ui: { catalog: { displayCatalog, isFetching, expanded }, screen: screenWidth }
+    ui: {
+      catalog: { displayCatalog, isFetching, expanded },
+      screen: screenWidth
+    }
   } = state;
 
   const aKeys = Object.keys(articles);
@@ -71,6 +87,9 @@ const mapStateToProps = (state, ownProps) => {
   // books[bookid].articles这句可以判断loadArticles是否执行
   const bookArticles = allArticles.length > 0 && books[bookid] && books[bookid].articles
     ? allArticles.filter(a => a.parent === Number(bookid)) : [];
+  if (newArticle) {
+    bookArticles.push(newArticle);
+  }
   console.log(books[bookid]);
   console.log(bookArticles);
   return {
@@ -80,17 +99,26 @@ const mapStateToProps = (state, ownProps) => {
     isFetching,
     screenWidth,
     expanded,
+    hasTemp: !!newArticle,
     result
   };
 };
 
 const {
-  loadBook, toggleCatalog, refreshAuthentication, toggleExpandBtn
+  loadBook, toggleCatalog, refreshAuthentication, toggleExpandBtn, toggleBlockedModal,
+  addNewArticle, destroyNewArticle, addBlockedArticle
 } = actions;
 
 export default connect(
   mapStateToProps,
   {
-    loadBook, toggleCatalog, refreshAuthentication, toggleExpandBtn
+    loadBook,
+    toggleCatalog,
+    refreshAuthentication,
+    toggleExpandBtn,
+    addNewArticle,
+    destroyNewArticle,
+    addBlockedArticle,
+    toggleBlockedModal
   },
 )(CatalogContainer);
