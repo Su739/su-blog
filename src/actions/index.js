@@ -6,10 +6,9 @@ import tempDataActions, * as tempDataTypes from './tempData';
 import refreshAuthentication, * as authTypes from './refreshAuthentication';
 
 const {
-  toggleCatalog, screenResize, toggleExpandBtn, toggleLoginForm, toggleRegisterForm
+  toggleCatalog, screenResize, toggleExpandBtn, toggleLoginForm,
+  toggleRegisterForm, toggleBlockedModal
 } = uiActions;
-
-const { addNewArticle } = tempDataActions;
 
 const RESET_REQUEST_ERROR = 'RESET_REQUEST_ERROR';
 // Resets the currently visible error message.
@@ -37,5 +36,6 @@ export default {
   refreshAuthentication,
   toggleLoginForm,
   toggleRegisterForm,
-  addNewArticle
+  toggleBlockedModal,
+  ...tempDataActions
 };

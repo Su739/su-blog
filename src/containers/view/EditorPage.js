@@ -39,8 +39,12 @@ ToolButton.propTypes = {
 const EditorPage = (props) => {
   console.log(props);
   const {
-    match, isLogged, isFetching, formValues, submitArticle, loadArticle
+    toggleBlockedModal, loadArticle, submitArticle,
+    match, isLogged, isFetching, formValues, requestError, hasTemp, displayBlockedModal
   } = props;
+  if (requestError) {
+    return <Error404 />;
+  }
   if (isLogged) {
     return (
       <div className="editor-page">
@@ -56,6 +60,7 @@ const EditorPage = (props) => {
             <div className="editor-and-previewer">
               <div className="editor-container">
                 <Switch>
+                  {hasTemp && <Redirect to={`/${match.params.username}/book/${match.params.bookid}/~/edit/-1`} /> }
                   <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorForm} />
                   <Route exact path="/:username/book/:bookid/~/edit" component={EditorForm} />
                   <Route path="/" component={Error404} />
@@ -102,20 +107,29 @@ EditorPage.propTypes = {
   isLogged: PropTypes.bool,
   isFetching: PropTypes.bool,
   formValues: PropTypes.objectOf(PropTypes.any),
-  submitArticle: PropTypes.func
+  submitArticle: PropTypes.func,
+  requestError: PropTypes.objectOf(PropTypes.any),
+  toggleBlockedModal: PropTypes.func,
+  displayBlockedModal: PropTypes.bool,
+  hasTemp: PropTypes.bool
 };
 
 const mapStateToProps = (state) => {
   const {
     auth: { isLogged, loginName },
-    ui: { editor: { isFetching } },
-    form
+    ui: { editor: { isFetching }, popwindow: { displayBlockedModal } },
+    form,
+    requestError,
+    tempData: { article: tempArticle }
   } = state;
   const formValues = form && form.editorForm && form.editorForm.values;
   return {
     isLogged,
     isFetching,
-    formValues
+    formValues,
+    requestError,
+    displayBlockedModal,
+    hasTemp: !!tempArticle
   };
 };
 

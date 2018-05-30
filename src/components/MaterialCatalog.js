@@ -9,16 +9,26 @@ const MaterialCatalog = (props) => {
   const {
     isEditor, isFetching,
     articles, url,
-    screenWidth, displayCatalog, expanded,
-    toolMethods, handleToggleCatalog, toggleExpandBtn
+    screenWidth, displayCatalog, expanded, hasTemp,
+    toolMethods, handleToggleCatalog, toggleExpandBtn, toggleBlockedModal, addBlockedArticle
   } = props;
   let initialPage = null;
   const catalogList = [];
+  const bySuperior = {};
   console.log(articles);
   // 对文章进行排序，生成目录
   if (articles && articles.length > 0) {
     if (isEditor) {
-      sortCatalog(articles).forEach(r =>
+      const sorted = sortCatalog(articles);
+      sorted.forEach(r =>
+        r.forEach((item) => {
+          if (bySuperior[item.superior]) {
+            bySuperior[item.superior] += 1;
+          } else {
+            bySuperior[item.superior] = 1;
+          }
+        }));
+      sorted.forEach(r =>
         r.forEach((item) => {
           const {
             id, title, depth, superior
@@ -44,6 +54,10 @@ const MaterialCatalog = (props) => {
               superior={superior}
               toolMethods={toolMethods}
               isEditor={isEditor}
+              bySuperior={bySuperior}
+              toggleBlockedModal={toggleBlockedModal}
+              hasTemp={hasTemp}
+              addBlockedArticle={addBlockedArticle}
             />);
           }
         }));
@@ -93,7 +107,6 @@ const MaterialCatalog = (props) => {
           }
         }));
     }
-    console.log(catalogList);
   }
   return (
     <Drawer
@@ -102,7 +115,9 @@ const MaterialCatalog = (props) => {
       open={screenWidth > 768 || displayCatalog}
       onRequestChange={() => handleToggleCatalog(false)}
       containerStyle={screenWidth > 768
-        ? { height: 'calc(100% - 64px)', top: '64px', overflowX: 'hidden' }
+        ? {
+            height: 'calc(100% - 64px)', top: '64px', overflowX: 'hidden', transform: 'none'
+          }
         : { overflowX: 'hidden' }}
     >
       <div className="catalog-list">
@@ -126,7 +141,10 @@ MaterialCatalog.propTypes = {
   toolMethods: PropTypes.objectOf(PropTypes.func),
   displayCatalog: PropTypes.bool,
   handleToggleCatalog: PropTypes.func,
-  isFetching: PropTypes.bool
+  isFetching: PropTypes.bool,
+  hasTemp: PropTypes.bool,
+  toggleBlockedModal: PropTypes.func,
+  addBlockedArticle: PropTypes.func
 };
 
 export default MaterialCatalog;
