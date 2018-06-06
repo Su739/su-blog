@@ -4,6 +4,14 @@ export const TOGGLE_EXPAND_BTN = 'TOGGLE_EXPAND_BTN';
 export const TOGGLE_LOGIN_FORM = 'TOGGLE_LOGIN_FORM';
 export const TOGGLE_REGISTER_FORM = 'TOGGLE_REGISTER_FORM';
 export const TOGGLE_BLOCKED_MODAL = 'TOGGLE_BLOCKED_MODAL';
+export const LOADING_EDITOR = 'LOADING_EDITOR';
+
+function loadingEditor(loading) {
+  return {
+    type: LOADING_EDITOR,
+    loading
+  };
+}
 
 function toggleBlockedModal(display) {
   return {
@@ -53,5 +61,6 @@ export default {
   toggleExpandBtn,
   toggleLoginForm,
   toggleRegisterForm,
-  toggleBlockedModal
+  toggleBlockedModal,
+  loadingEditor
 };

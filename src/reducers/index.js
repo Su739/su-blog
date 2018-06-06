@@ -2,11 +2,12 @@ import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import omit from 'lodash/omit';
 import merge from 'lodash/merge';
+import cloneDeep from 'lodash/cloneDeep';
 import actions from '../actions';
 
 const {
   types: {
-    uiTypes, articleTypes, bookTypes, authTypes, userTypes, tempDataTypes
+    uiTypes, articleTypes, bookTypes, authTypes, userTypes, editingDataTypes
   }
 } = actions;
 
@@ -30,18 +31,114 @@ const entities = (state = { users: {}, books: {}, articles: {} }, action) => {
   return state;
 };
 
-// store some temp data
-const tempData = (state = {}, action) => {
+/**
+ * store some editing data,the articles data use array
+ * @param {object} state
+ * @param {array} action.articles
+ */
+/*
+const editingData = (state = {}, action) => {
   switch (action.type) {
-    case tempDataTypes.ADD_NEW_ARTICLE:
-      return { ...state, newArticle: action.newArticle };
-    case tempDataTypes.ADD_BLOCKED_ARTICLE:
-      return { ...state, blockedArticle: action.blockedArticle };
-    case tempDataTypes.DESTROY_NEW_ARTICLE:
-      return omit(state, ['newArticle']);
-    case tempDataTypes.DESTROY_BLOCKED_ARTICLE:
+    case editingDataTypes.INITIAL_EDITING_DATA:
+      return cloneDeep({ booksById: action.booksById, articles: sortCatalog(action.articlesById) });
+    case editingDataTypes.ADD_ARTICLE:
+      return {
+        articles: sortCatalog(state.articles.concat(action.newArticle)),
+        booksById: {
+          ...state.booksById,
+          [action.newArticle.parent]: {
+            ...state.booksById[[action.newArticle.parent]],
+            articles: state.booksById[[action.newArticle.parent]]
+              .articles.concat(action.newArticle.id)
+          }
+        }
+      };
+    case editingDataTypes.REMOVE_ARTICLE:
+      return {
+        ...state,
+        articlesById: state.articles.filter(a => a.id !== action.id),
+        booksById: {
+          ...state.booksById,
+          [action.newArticle.parent]: {
+            ...state.booksById[[action.newArticle.parent]],
+            articles: state.booksById[[action.newArticle.parent]]
+              .articles.slice(0, -1)
+          }
+        }
+      };
+    case editingDataTypes.DESTROY_BLOCKED_ARTICLE:
       return omit(state, ['blockedArticle']);
-    case tempDataTypes.CLEAN_TEMP_DATA:
+    case editingDataTypes.DESTROY_EDITING_DATA:
+      return {};
+    default:
+      return state;
+  }
+};
+*/
+
+// store some editing data
+const editingData = (state = {}, action) => {
+  switch (action.type) {
+    case editingDataTypes.INITIAL_EDITING_DATA:
+      return cloneDeep({ booksById: action.booksById, articlesById: action.articlesById });
+    case editingDataTypes.ADD_ARTICLE:
+      return {
+        ...state,
+        articlesById: {
+          ...state.articlesById,
+          [action.newArticle.id]: action.newArticle
+        },
+        booksById: {
+          ...state.booksById,
+          [action.newArticle.parent]: {
+            ...state.booksById[[action.newArticle.parent]],
+            articles: state.booksById[[action.newArticle.parent]]
+              .articles.concat(action.newArticle.id)
+          }
+        },
+        hasNewArticle: action.hasNewArticle
+      };
+    case editingDataTypes.ADD_BLOCKED_ARTICLE:
+      return {
+        ...state,
+        blockedArticle: action.blockedArticle
+      };
+    case editingDataTypes.UPDATE_ARTICLE:
+      return {
+        ...state,
+        articlesById: {
+          ...state.articlesById,
+          [action.newArticle.id]: {
+            ...state.articlesById[action.newArticle.id],
+            ...action.newArticle
+          }
+        }
+      };
+    case editingDataTypes.REMOVE_ARTICLE:
+      return {
+        ...state,
+        articlesById: omit(state.articlesById, [[action.id]]),
+        booksById: {
+          ...state.booksById,
+          [state.articlesById[action.id].parent]: {
+            ...state.booksById[state.articlesById[action.id].parent],
+            articles: state.booksById[state.articlesById[action.id].parent]
+              .articles.slice(0, -1)
+          }
+        },
+        hasNewArticle: action.hasNewArticle
+      };
+    case editingDataTypes.REMOVE_BLOCKED_ARTICLE:
+      return omit(state, ['blockedArticle']);
+    case editingDataTypes.CANCEL_ARTICLE_CHANGE:
+      return {
+        ...state,
+        articlesById: {
+          ...state.articlesById,
+          [action.article.id]: action.article
+        }
+      };
+    case editingDataTypes.DESTROY_EDITING_DATA:
       return {};
     default:
       return state;
@@ -164,8 +261,13 @@ const preview = (state = { isFetching: false }, action) => {
   }
 };
 
-const editor = (state = { isFetching: false }, action) => {
+const editor = (state = { isFetching: false, loading: true }, action) => {
   switch (action.type) {
+    case uiTypes.LOADING_EDITOR:
+      return {
+        ...state,
+        loading: action.loading
+      };
     case articleTypes.ARTICLE_REQUEST:
       return {
         ...state,
@@ -212,7 +314,7 @@ const rootReducer = combineReducers({
   ui,
   requestError,
   form: formReducer,
-  tempData
+  editingData
 });
 
 export default rootReducer;

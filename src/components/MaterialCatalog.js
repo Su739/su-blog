@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Drawer from 'material-ui/Drawer';
+import NewArticleButton from './NewArticleButton';
 import CatalogItem from './CatalogItem';
 import sortCatalog from './utils/sortCatalog';
 import './Catalog.css';
@@ -8,14 +9,15 @@ import './Catalog.css';
 const MaterialCatalog = (props) => {
   const {
     isEditor, isFetching,
-    articles, url,
-    screenWidth, displayCatalog, expanded, hasTemp,
-    toolMethods, handleToggleCatalog, toggleExpandBtn, toggleBlockedModal, addBlockedArticle
+    articles, url, bookid, history,
+    screenWidth, displayCatalog, expanded, hasNewArticle,
+    toolMethods, handleToggleCatalog, toggleExpandBtn, toggleBlockedModal, addBlockedArticle,
+    addArticle
   } = props;
   let initialPage = null;
   const catalogList = [];
-  const bySuperior = {};
-  console.log(articles);
+  const bySuperior = {}; // 按照superior分类，值为该superior的文章数
+  console.log(props);
   // 对文章进行排序，生成目录
   if (articles && articles.length > 0) {
     if (isEditor) {
@@ -56,8 +58,11 @@ const MaterialCatalog = (props) => {
               isEditor={isEditor}
               bySuperior={bySuperior}
               toggleBlockedModal={toggleBlockedModal}
-              hasTemp={hasTemp}
+              hasNewArticle={hasNewArticle}
               addBlockedArticle={addBlockedArticle}
+              addArticle={addArticle}
+              bookid={bookid}
+              history={history}
             />);
           }
         }));
@@ -111,27 +116,38 @@ const MaterialCatalog = (props) => {
   return (
     <Drawer
       docked={screenWidth > 768}
-      width={screenWidth > 768 ? '20%' : '60%'}
+      width={screenWidth > 768 ? '18%' : '60%'}
       open={screenWidth > 768 || displayCatalog}
       onRequestChange={() => handleToggleCatalog(false)}
       containerStyle={screenWidth > 768
         ? {
-            height: 'calc(100% - 64px)', top: '64px', overflowX: 'hidden', transform: 'none'
+            height: 'calc(100% - 64px)', top: '64px', overflowX: 'hidden', transform: 'none', maxWidth: '300px'
           }
-        : { overflowX: 'hidden' }}
+        : { overflowX: 'hidden', maxWidth: '280px' }}
     >
+      {isFetching && <div>loading...</div>}
+      {initialPage}
       <div className="catalog-list">
-        {initialPage}
-        {isFetching
-        ?
-          <div>loading...</div>
-        :
-        catalogList}
+        {catalogList}
       </div>
+      {isEditor &&
+        <NewArticleButton onClick={() => {
+            const order = bySuperior[0] ? bySuperior[0] + 1 : 1;
+            if (hasNewArticle) { // 这个不需要转到-1， 本身他就在-1
+              addBlockedArticle(-1, 0, order, 0, '未命名', '', bookid, true);
+              toggleBlockedModal(true);
+            } else {
+              toolMethods.addArticle(-1, 0, order, 0, '未命名', '', bookid, true);
+              history.push(`${url}/-1`); // 转到 articleid为 -1
+            }
+          }}
+        />
+      }
     </Drawer>
   );
 };
 MaterialCatalog.propTypes = {
+  history: PropTypes.objectOf(PropTypes.any),
   expanded: PropTypes.objectOf(PropTypes.bool),
   toggleExpandBtn: PropTypes.func,
   screenWidth: PropTypes.number,
@@ -142,9 +158,11 @@ MaterialCatalog.propTypes = {
   displayCatalog: PropTypes.bool,
   handleToggleCatalog: PropTypes.func,
   isFetching: PropTypes.bool,
-  hasTemp: PropTypes.bool,
+  hasNewArticle: PropTypes.bool,
   toggleBlockedModal: PropTypes.func,
-  addBlockedArticle: PropTypes.func
+  addArticle: PropTypes.func,
+  addBlockedArticle: PropTypes.func,
+  bookid: PropTypes.number
 };
 
 export default MaterialCatalog;

@@ -6,7 +6,7 @@ import MaterialCatalog from '../components/MaterialCatalog';
 
 class CatalogContainer extends React.Component {
   static propTypes = {
-    hasTemp: PropTypes.bool,
+    history: PropTypes.objectOf(PropTypes.any),
     isEditor: PropTypes.bool,
     expanded: PropTypes.objectOf(PropTypes.bool),
     toggleExpandBtn: PropTypes.func.isRequired,
@@ -14,9 +14,10 @@ class CatalogContainer extends React.Component {
     refreshAuthentication: PropTypes.func.isRequired,
     toggleCatalog: PropTypes.func.isRequired,
     toggleBlockedModal: PropTypes.func,
-    addNewArticle: PropTypes.func,
-    destroyNewArticle: PropTypes.func,
+    addArticle: PropTypes.func,
     addBlockedArticle: PropTypes.func,
+    destroyNewArticle: PropTypes.func,
+    hasNewArticle: PropTypes.bool,
     isFetching: PropTypes.bool,
     url: PropTypes.string,
     // loadUser: PropTypes.func.isRequired,
@@ -27,13 +28,15 @@ class CatalogContainer extends React.Component {
   };
   componentDidMount() {
     const {
-      loadBook, bookid
+      loadBook, bookid, isEditor
     } = this.props;
     console.log(this.props);
     // refreshAuthentication();
     // 这个暂时先注释掉，当通过url直接访问这页文章，可能appbar还没有请求user，这样会导致请求2次，所以先注释掉，交给appbar请求
     // loadUser(params.username);
-    loadBook(bookid);
+    if (!isEditor) { // editor 页会loadBook
+      loadBook(bookid);
+    }
   }
   componentDidUpdate(prevProps) {
     console.log(this.props.bookid);
@@ -44,9 +47,9 @@ class CatalogContainer extends React.Component {
   render() {
     const {
       bookArticles, isFetching, displayCatalog, screenWidth,
-      expanded, url, isEditor, hasTemp,
+      expanded, url, isEditor, bookid, history,
       toggleCatalog, toggleExpandBtn, toggleBlockedModal,
-      destroyNewArticle, addBlockedArticle, addNewArticle
+      destroyNewArticle, hasNewArticle, addArticle, addBlockedArticle
     } = this.props;
     return (
       <MaterialCatalog
@@ -59,37 +62,50 @@ class CatalogContainer extends React.Component {
         expanded={expanded}// 目录中被折叠的项目
         url={url}
         isEditor={isEditor}
-        toolMethods={{ addNewArticle, destroyNewArticle }}
+        toolMethods={{ addArticle, destroyNewArticle }}
         toggleBlockedModal={toggleBlockedModal}
-        hasTemp={hasTemp}
+        hasNewArticle={hasNewArticle}
+        bookid={bookid}
         addBlockedArticle={addBlockedArticle}
+        addArticle={addArticle}
+        history={history}
       />
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { bookid } = ownProps;
+  const { bookid, isEditor } = ownProps;
   const {
     entities: {
       books, articles
     },
-    tempData: { newArticle },
     result,
     ui: {
       catalog: { displayCatalog, isFetching, expanded },
       screen: screenWidth
-    }
+    },
+    editingData: { articlesById, booksById, hasNewArticle }
   } = state;
 
-  const aKeys = Object.keys(articles);
-  const allArticles = aKeys && aKeys.length > 0 ? aKeys.map(key => articles[key]) : [];
-  // books[bookid].articles这句可以判断loadArticles是否执行
-  const bookArticles = allArticles.length > 0 && books[bookid] && books[bookid].articles
-    ? allArticles.filter(a => a.parent === Number(bookid)) : [];
-  if (newArticle) {
-    bookArticles.push(newArticle);
+  if (isEditor) { // 正常来说，editorPage加载成功，这些数据是有的
+    const book = booksById[bookid];
+    const bookArticles = book.articles.map(a => articlesById[a]);
+    return {
+      book,
+      bookArticles,
+      displayCatalog,
+      isFetching,
+      screenWidth,
+      bookid: parseInt(bookid, 10),
+      hasNewArticle,
+      result
+    };
   }
+
+  // books[bookid].articles这句可以判断loadArticles是否执行
+  const bookArticles = books[bookid] && books[bookid].articles
+    ? books[bookid].articles.map(a => articles[a]) : [];
   console.log(books[bookid]);
   console.log(bookArticles);
   return {
@@ -99,14 +115,14 @@ const mapStateToProps = (state, ownProps) => {
     isFetching,
     screenWidth,
     expanded,
-    hasTemp: !!newArticle,
+    hasTemp: true,
     result
   };
 };
 
 const {
   loadBook, toggleCatalog, refreshAuthentication, toggleExpandBtn, toggleBlockedModal,
-  addNewArticle, destroyNewArticle, addBlockedArticle
+  addArticle, removeArticle, addBlockedArticle
 } = actions;
 
 export default connect(
@@ -116,8 +132,8 @@ export default connect(
     toggleCatalog,
     refreshAuthentication,
     toggleExpandBtn,
-    addNewArticle,
-    destroyNewArticle,
+    addArticle,
+    removeArticle,
     addBlockedArticle,
     toggleBlockedModal
   },

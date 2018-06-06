@@ -42,13 +42,14 @@ ItemTools.propTypes = {
 // store 中维护被选中状态，折叠状态由自己的state维护
 class CatalogItem extends React.Component {
   static propTypes = {
+    history: PropTypes.objectOf(PropTypes.any),
     toolMethods: PropTypes.shape({
       newArticle: PropTypes.func,
       editArticle: PropTypes.func,
       deleteArticle: PropTypes.func
     }),
+    bookid: PropTypes.number,
     url: PropTypes.string,
-    selected: PropTypes.bool,
     title: PropTypes.string,
     depth: PropTypes.number,
     toggleExpandBtn: PropTypes.func,
@@ -59,8 +60,9 @@ class CatalogItem extends React.Component {
     superior: PropTypes.number,
     isEditor: PropTypes.bool,
     bySuperior: PropTypes.arrayOf(PropTypes.number),
-    hasTemp: PropTypes.bool,
+    hasNewArticle: PropTypes.bool,
     toggleBlockedModal: PropTypes.func,
+    addArticle: PropTypes.func,
     addBlockedArticle: PropTypes.func
   }
   static defaultProps = {
@@ -93,18 +95,18 @@ class CatalogItem extends React.Component {
   // 所以还要自己写selected。。。暂时没写，先写editor去
   render() {
     const {
-      selected, expanded, isEditor, expandable, bySuperior, hasTemp,
-      url, title, depth, id, superior,
-      handleToggleCatalog, toggleBlockedModal, toolMethods, addBlockedArticle
+      expanded, isEditor, expandable, bySuperior, hasNewArticle,
+      url, title, depth, id, superior, bookid, history,
+      handleToggleCatalog, toggleBlockedModal, toolMethods, addBlockedArticle, addArticle
     } = this.props;
-    console.log(this.props);
-    if (isEditor) {
+    if (isEditor) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
       const newArticle = () => {
-        if (hasTemp) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
+        if (hasNewArticle) {
+          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '', bookid, true);
           toggleBlockedModal(true);
-          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '');
         } else { // 立即新建一个文章
-          toolMethods.addNewArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '');
+          addArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '', bookid, true);
+          history.push(url.replace(/\/[^/]*$/, '/-1'));
         }
       };
       return (

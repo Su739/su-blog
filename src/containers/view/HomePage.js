@@ -12,7 +12,7 @@ const HomePage = props => (
   <div>
     <NavBar {...props} />
     <LoginForm />
-
+    <BlockedArticleDialog />
     <Switch>
       <Route exact path="/" render={() => <div>Home</div>} />
       <Route
@@ -22,7 +22,8 @@ const HomePage = props => (
             <div className="content">
               <Switch>
                 <Route exact path={match.url} render={() => <div>等一个UserPage</div>} />
-                <Route path="/:username/book/:bookid/~/edit" component={EditorPage} />
+                <Route exact path="/:username/book/:bookid/~/edit" component={EditorPage} />
+                <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorPage} />
                 <Route path="/:username/book/:bookid" component={ArticlePage} />
                 <Route path="/" component={Error404} />
               </Switch>

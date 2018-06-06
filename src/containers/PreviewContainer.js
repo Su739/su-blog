@@ -54,7 +54,7 @@ const mapStateToProps = (state, ownProps) => {
 
   let readmeid = null;
   if (!articleid) {
-    // books[bookid].articles这句可以判断loadArticles是否执行, 总感觉要想想其他办法，不这么干
+    // books[bookid].articles这句可以判断loadBook是否执行完成, 总感觉要想想其他办法，不这么干
     if (books && books[bookid] && books[bookid].articles) {
       ([readmeid] = books[bookid].articles.filter(a => articles[a].superior === -1));
       // throw new Error('book最少有一篇depth为-1的readme');

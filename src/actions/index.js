@@ -2,17 +2,12 @@ import loadArticle, * as articleTypes from './loadArticle';
 import loadBook, * as bookTypes from './loadBook';
 import loadUser, * as userTypes from './loadUser';
 import uiActions, * as uiTypes from './ui';
-import tempDataActions, * as tempDataTypes from './tempData';
+import editingDataActions, * as editingDataTypes from './editingData';
 import refreshAuthentication, * as authTypes from './refreshAuthentication';
-
-const {
-  toggleCatalog, screenResize, toggleExpandBtn, toggleLoginForm,
-  toggleRegisterForm, toggleBlockedModal
-} = uiActions;
 
 const RESET_REQUEST_ERROR = 'RESET_REQUEST_ERROR';
 // Resets the currently visible error message.
-export const resetRequestError = () => ({
+const resetRequestError = () => ({
   type: RESET_REQUEST_ERROR
 });
 
@@ -23,19 +18,14 @@ export default {
     userTypes,
     RESET_REQUEST_ERROR,
     uiTypes,
-    tempDataTypes,
+    editingDataTypes,
     authTypes
   },
   loadArticle,
   loadBook,
   loadUser,
   resetRequestError,
-  screenResize,
-  toggleCatalog,
-  toggleExpandBtn,
   refreshAuthentication,
-  toggleLoginForm,
-  toggleRegisterForm,
-  toggleBlockedModal,
-  ...tempDataActions
+  ...uiActions,
+  ...editingDataActions
 };

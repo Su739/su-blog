@@ -65,11 +65,14 @@ export function itemsByParent(obj, superior = 'superior') {
  * @param {string?} superior superior字段名
  */
 function sortCatalog(obj, id = 'id', superior = 'superior') {
-  if (!obj || typeof obj !== 'object') {
+  if (!obj || typeof obj !== 'object' || !Array.isArray(obj)) {
     throw new Error('输入一个object类型数据第一个参数');
   }
-  const keys = Object.keys(obj);
-  const resource = keys.map(k => obj[k]);// 源数据的数组格式
+
+  const resource = Array.isArray(obj) ?
+    obj.slice()
+    :
+    Object.keys(obj).map(k => obj[k]);// 源数据的数组格式
   // const resource2 = []; // 处理过的数组
   const byDepth = {}; // 按照depth分类的集合
   const arrDepth = []; // depth序号(确定顺序desc)数组

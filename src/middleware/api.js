@@ -16,7 +16,7 @@ const callApi = (endpoint, apischema, result) => {
   return axios.get(fullUrl, { withCredentials: true })
     .then(
       response => normalize({ [result]: response.data }, apischema),
-      error => Promise.reject(error.response),
+      error => Promise.reject(error)
     );
 };
 const articleSchema = { article: new schema.Entity('articles') };
@@ -83,12 +83,13 @@ export default store => next => (action) => {
         response,
         type: successType
       })),
-    error => next(actionWith({
-      type: failureType,
-      requestError: {
-        message: error.data.error || 'Something bad happened',
-        status: error.status
-      }
-    }))
+    error =>
+      next(actionWith({
+        type: failureType,
+        requestError: {
+          message: error.response ? (error.response.data.error || 'Something bad happened') : error.message,
+          status: error.response && error.response.status
+        }
+      }))
   );
 };
