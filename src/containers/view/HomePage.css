@@ -1,0 +1,19 @@
+.home-content {
+  margin: 134px auto 0 auto;
+  width: 768px;
+}
+@keyframes rotated {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.list-loader {
+  width: 20%;
+  margin: auto;
+}
+.list-loading {
+  animation: 800ms linear 0s infinite rotated;
+}

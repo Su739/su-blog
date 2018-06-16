@@ -1,0 +1,16 @@
+.input-title {
+  background: rgb(247, 248, 249);
+  width: 100%;
+  font-size: 32px;
+  padding: 5px 10px;
+  border: none;
+  margin: 5px 0;
+  border-bottom: 2px solid rgb(247, 248, 249);
+}
+.input-title:hover {
+  border-bottom: 2px solid #a4ec81;
+}
+.input-title:focus {
+  border-bottom: 2px solid #a4ec81;
+  outline: none;
+}

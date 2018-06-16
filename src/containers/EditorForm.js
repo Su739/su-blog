@@ -5,19 +5,22 @@ import { connect } from 'react-redux';
 import { Prompt, withRouter } from 'react-router-dom';
 import axios from 'axios';
 import actions from '../actions';
+import { MaterialTextField, MaterialToogleField } from '../components/reduxFormFieldComponent/MaterialField';
 import EditorField from '../components/EditorField';
+import EditorTitleField from '../components/EditorTitleFied';
 import rootUrl from '../utils/rootUrl';
 
 export const submitArticle = ({
-  title, writerid, depth, order, parent, superior, content
+  id, title, depth, order, parent, superior, content, ispublic, writerid
 }) =>
   axios.post(`${rootUrl}/api/articles/article`, {
-    title, writerid, depth, order, parent, superior, content
+    id, title, depth, order, parent, superior, content, ispublic, writerid
   }, { withCredentials: true });
 
 class EditorForm extends React.Component {
   static propTypes = {
-    articlesById: PropTypes.arrayOf(PropTypes.object),
+    location: PropTypes.objectOf(PropTypes.any),
+    articlesById: PropTypes.objectOf(PropTypes.object),
     initialValues: PropTypes.objectOf(PropTypes.any),
     loadArticle: PropTypes.func,
     updateArticle: PropTypes.func,
@@ -25,6 +28,7 @@ class EditorForm extends React.Component {
     dirty: PropTypes.bool,
     handleSubmit: PropTypes.func,
     destroyNewArticle: PropTypes.func,
+    resetRequestError: PropTypes.func,
     requestError: PropTypes.objectOf(PropTypes.any)
   }
   componentDidMount() {
@@ -36,32 +40,39 @@ class EditorForm extends React.Component {
     console.log(this.props);
     // 第二个条件，没有使用articleid === -1， 因为在没有新建文章时请求-1需要他报404错，而initialValues.id确定的是editingdata中是否有新文章
     // 由于entities中不会出现新建的文章，所以即使存在新建文章loadXXX中不会返回null，而是去请求-1这个文章
-    if (!requestError && (!initialValues || initialValues.id !== -1)) {
-      loadArticle(articleid).then((res) => {
-        if (!res.requestError) {
-          console.log(res);
-          const {
-            id, depth, order, superior, title, content, parent, public: ispublic
-          } = res.response.entities.articles[articleid];
-          updateArticle({
-            // 哎～字段里用了js保留字public，应该该过来。。。
-            id, depth, order, superior, title, content, parent, public: ispublic
-          });
-        }
-      });
+    // 第三个条件确定文章内容没有加载的情况下才会请求文章，不然返回null then报错
+    if (!requestError && (!initialValues || !initialValues.content)) {
+      if (!initialValues || initialValues.id !== -1) {
+        loadArticle(articleid).then((res) => {
+          if (!res.requestError) {
+            console.log(res);
+            const {
+              id, depth, order, superior, title, content, parent, public: ispublic
+            } = res.response.entities.articles[articleid];
+            updateArticle({
+              // 哎～字段里用了js保留字public，应该该过来。。。
+              id, depth, order, superior, title, content, parent, public: ispublic
+            });
+          }
+        });
+      }
     }
   }
   componentDidUpdate(prevProps) {
     console.log(prevProps);
     // 在不提交的情况下，恢复之前访问的文章的状态。。。可能还需要改进，但我不知道怎么改们只能等遇到问题
     // 已更改一次，只有在没有删除上一次访问(编辑)的article，才会还原
-    if (this.props.location !== prevProps.location && this.props.articlesById[prevProps.initialValues.id]) {
+    if (this.props.location.pathname !== prevProps.location.pathname
+      && this.props.articlesById[prevProps.initialValues.id]) {
       prevProps.updateArticle(prevProps.initialValues);
     }
     // -1是在新建文章时使用的id，要把他排除,如果已经加载内容loadArticle，要过滤掉，不然返回null，then会报错
-    if (prevProps.articleid !== this.props.articleid &&
-      this.props.articleid !== -1) {
-      if (!this.props.initialValues.content) {
+    if (prevProps.articleid !== this.props.articleid) {
+      // 这个作用是清楚requestError，不然就算更改location，也会一直卡在错误页
+      if (prevProps.requestError) {
+        this.props.resetRequestError();
+      }
+      if (!this.props.initialValues || !this.props.initialValues.content) {
         this.props.loadArticle(this.props.articleid).then((res) => {
           if (!res.requestError) {
             console.log(res);
@@ -69,6 +80,8 @@ class EditorForm extends React.Component {
               id, content // , depth, order, superior, title, parent, public: ispublic
             } = res.response.entities.articles[this.props.articleid];
             this.props.updateArticle({ id, content });
+            // 我觉得传入一个完整的文章比较好
+            // this.props.updateArticle(res.response.entities.articles[this.props.articleid]);
           }
         });
       }
@@ -76,7 +89,6 @@ class EditorForm extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     const {
       handleSubmit, dirty, requestError, destroyNewArticle, updateArticle, initialValues
     } = this.props;
@@ -84,25 +96,36 @@ class EditorForm extends React.Component {
       return <div>{requestError.message}</div>;
     }
     return (
-      <form onSubmit={() => { destroyNewArticle(); handleSubmit(); }}>
+      <form style={{ position: 'relative' }} onSubmit={() => { destroyNewArticle(); handleSubmit(); }}>
         <Prompt
           when={dirty}
           message={location =>
             `Are you sure you want to go to ${location.pathname}`
           }
         />
-        <div>
+        <div className="editor-float-pane">
           <Field
             name="title"
-            component="input"
+            component={EditorTitleField}
+            label="标题："
             type="text"
             placeholder="输入标题..."
             onBlur={(e) => {
               updateArticle({ id: initialValues.id, title: e.target.value });
             }}
           />
+          <Field
+            style={{
+              width: 'auto', margin: '5px 0'
+            }}
+            id="ispublic"
+            label="对所有人可见"
+            name="ispublic"
+            component={MaterialToogleField}
+            type="checkbox"
+          />
         </div>
-        <Field name="writerid" component="input" type="hidden" />
+        <Field name="id" component="input" type="hidden" />
         <Field name="depth" component="input" type="hidden" />
         <Field name="order" component="input" type="hidden" />
         <Field name="parent" component="input" type="hidden" />
@@ -117,13 +140,14 @@ class EditorForm extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { articleid, bookid } = ownProps.match.params;
+  const { articleid, bookid, username } = ownProps.match.params;
 
   const {
-    entities: { books, articles },
-    editingData: { articlesById, booksById },
+    entities: { books, articles, users },
+    editingData: { articlesById, newArticle },
     requestError
   } = state;
+  const writerid = users[username].id;
   let readmeid = null;
   /*
   if (!articleid) {
@@ -145,31 +169,36 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   // 无论已经在editingData加载了多少本书，只有一个新建文章，并且他的id为-1
-  const article = (parseInt(articleid, 10) === -1 && articlesById[-1])
+  const article = (parseInt(articleid, 10) === -1 && newArticle)
     || (articles && articles[articleid || readmeid]);
 
   return {
     articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
-    initialValues: article,
+    initialValues: { ...article, writerid },
     articlesById,
     requestError
   };
 };
 
 const {
-  loadArticle, destroyNewArticle, loadBook, updateArticle
+  loadArticle, removeArticle, resetRequestError, updateArticle
 } = actions;
 
 export default withRouter(connect(mapStateToProps, {
-  loadArticle, destroyNewArticle, updateArticle, blur
+  loadArticle, removeArticle, updateArticle, blur, resetRequestError
 })(reduxForm({
   form: 'editorForm',
   // When set to true, the form will reinitialize every time the initialValues prop changes
   enableReinitialize: true,
   onSubmit: submitArticle,
-  onSubmitSuccess: (result, dispatch) => {
+  onSubmitSuccess: (result, dispatch, props) => {
+    const article = Array.isArray(result.data) ? result.data[0] : result.data;
+    const { username, bookid } = props.match.params;
     // 在这里destroy而不是在提交时的原因，是如果提交时destory
-    dispatch(loadBook(result.bookid));
-    dispatch(destroyNewArticle());
+    // dispatch(loadBook(article.parent));
+    dispatch(loadArticle(article.id, true));
+    dispatch(removeArticle(-1));
+    dispatch(updateArticle(article));
+    props.history.push(`/${username}/book/${bookid}/~/edit/${article.id}`);
   }
 })(EditorForm)));

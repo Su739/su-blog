@@ -9,6 +9,7 @@ export const INITIAL_EDITING_DATA = 'INITIAL_EDITING_DATA';
 export const DESTROY_EDITING_DATA = 'DESTROY_EDITING_DATA';
 
 function addArticle(id = -1, depth, order, superior, title = '未命名', content = '', parent, ispublic) {
+  if (id !== -1) throw new Error('新建文章id必须为-1，如果想改变已有文章，请使用updataArticle');
   return {
     type: ADD_ARTICLE,
     newArticle: {
@@ -19,9 +20,8 @@ function addArticle(id = -1, depth, order, superior, title = '未命名', conten
       title,
       content,
       parent,
-      public: ispublic
-    },
-    hasNewArticle: id === -1
+      ispublic
+    }
   };
 }
 
@@ -36,7 +36,7 @@ function addBlockedArticle(id = -1, depth, order, superior, title = '未命名',
       title,
       content,
       parent,
-      public: ispublic
+      ispublic
     }
   };
 }

@@ -34,8 +34,8 @@ class CatalogContainer extends React.Component {
     // refreshAuthentication();
     // 这个暂时先注释掉，当通过url直接访问这页文章，可能appbar还没有请求user，这样会导致请求2次，所以先注释掉，交给appbar请求
     // loadUser(params.username);
-    if (!isEditor) { // editor 页会loadBook
-      loadBook(bookid);
+    if (!isEditor) { // editor 页会loadBook, 并在第一次加载时强制刷新
+      loadBook(bookid, true);
     }
   }
   componentDidUpdate(prevProps) {
@@ -83,7 +83,7 @@ const mapStateToProps = (state, ownProps) => {
     result,
     ui: {
       catalog: { displayCatalog, isFetching, expanded },
-      screen: screenWidth
+      screen: { width: screenWidth }
     },
     editingData: { articlesById, booksById, hasNewArticle }
   } = state;

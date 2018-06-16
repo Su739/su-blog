@@ -1,11 +1,13 @@
+import union from 'lodash/union';
+
 // Creates a reducer managing pagination, given the action types to handle,
 // and a function telling how to extract the key from an action.
-const loadProcess = ({ types, mapActionToKey }) => {
+const paginate = ({ types, mapActionToKey }) => {
   if (!Array.isArray(types) || types.length !== 3) {
-    throw new Error('请确认action是一个api请求action，然后更正types');
+    throw new Error('Expected types to be an array of three elements.');
   }
-  if (!types.every(type => typeof type === 'string')) {
-    throw new Error('types内应为string类型');
+  if (!types.every(t => typeof t === 'string')) {
+    throw new Error('Expected types to be strings.');
   }
   if (typeof mapActionToKey !== 'function') {
     throw new Error('Expected mapActionToKey to be a function.');
@@ -13,7 +15,7 @@ const loadProcess = ({ types, mapActionToKey }) => {
 
   const [requestType, successType, failureType] = types;
 
-  const updateUI = (state = {
+  const updatePagination = (state = {
     isFetching: false,
     nextPageUrl: undefined,
     pageCount: 0,
@@ -28,7 +30,10 @@ const loadProcess = ({ types, mapActionToKey }) => {
       case successType:
         return {
           ...state,
-          isFetching: false
+          isFetching: false,
+          ids: union(state.ids, action.response.result),
+          nextPageUrl: action.response.nextPageUrl,
+          pageCount: state.pageCount + 1
         };
       case failureType:
         return {
@@ -41,18 +46,18 @@ const loadProcess = ({ types, mapActionToKey }) => {
   };
 
   return (state = {}, action) => {
-    // Update pagination by key
     const key = mapActionToKey(action);
-    if (typeof key !== 'string') {
-      throw new Error('Expected key to be a string.');
-    }
+    // Update pagination by key
     switch (action.type) {
       case requestType:
       case successType:
       case failureType:
+        if (typeof key !== 'string') {
+          throw new Error('Expected key to be a string.');
+        }
         return {
           ...state,
-          [key]: updateUI(state[key], action)
+          [key]: updatePagination(state[key], action)
         };
       default:
         return state;
@@ -60,4 +65,4 @@ const loadProcess = ({ types, mapActionToKey }) => {
   };
 };
 
-export default loadProcess;
+export default paginate;

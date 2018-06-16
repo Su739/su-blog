@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import Preview from '../components/Preview';
@@ -10,7 +10,10 @@ const { loadArticle } = actions;
 
 class PreviewContainer extends React.Component {
   static propTypes = {
+    loginName: PropTypes.string,
+    username: PropTypes.string,
     articleid: PropTypes.number,
+    bookid: PropTypes.number,
     article: PropTypes.objectOf(PropTypes.any),
     isFetching: PropTypes.bool,
     loadArticle: PropTypes.func,
@@ -31,19 +34,25 @@ class PreviewContainer extends React.Component {
     }
   }
   render() {
-    const { isFetching, article, error } = this.props;
+    const {
+      isFetching, article, articleid, bookid, error, loginName, username
+    } = this.props;
     if (error) {
       return <Error404 />;
     }
     return (
-      { article } && <Preview isFetching={isFetching} article={article || { content: '' }} />
+      <div>
+        {loginName === username && <div className="btn-edit"><Link to={`/${username}/book/${bookid}/~/edit/${articleid}`}>编辑文章</Link></div>}
+        {article && <Preview loginName={loginName} isFetching={isFetching} article={article || { content: ' ' }} />}
+      </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { articleid, bookid } = ownProps.match.params;
+  const { articleid, bookid, username } = ownProps.match.params;
   const {
+    auth: { loginName },
     entities: {
       articles, books
     },
@@ -63,7 +72,10 @@ const mapStateToProps = (state, ownProps) => {
   const article = articles ? articles[articleid || readmeid] : null;
 
   return {
+    loginName,
+    username,
     articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
+    bookid: parseInt(bookid, 10),
     article,
     isFetching,
     error,

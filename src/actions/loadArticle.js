@@ -13,11 +13,11 @@ const fetchArticle = id => ({
   }
 });
 
-// Fetches a single user from API unless it is cached.
+// Fetches a single user from API unless it is cached and not willing to refresh it.
 // Relies on Redux Thunk middleware.
-const loadArticle = id => (dispatch, getState) => {
+const loadArticle = (id, refresh) => (dispatch, getState) => {
   const article = getState().entities.articles[id];
-  if (article && article.content) { // 第二个条件是因为加载目录时不会获取文章内容
+  if (article && article.content && !refresh) { // 第二个条件是因为加载目录时不会获取文章内容, 第三个条件是没要求强制刷新
     return null;
   }
   return dispatch(fetchArticle(id));

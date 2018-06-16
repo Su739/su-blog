@@ -7,7 +7,7 @@ import CodeMirror from './codemirror';
 const Editor = (props) => {
   const { input } = props;
   return (
-    <CodeMirror mode="markdown" theme="mdn-like" lineWrapping value={input.value} onChange={input.onChange} />
+    <CodeMirror mode="markdown" theme="mdn-like" scrollbarStyle="null" lineWrapping value={input.value} onChange={input.onChange} />
   );
 };
 

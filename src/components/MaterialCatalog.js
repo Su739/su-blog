@@ -134,10 +134,10 @@ const MaterialCatalog = (props) => {
         <NewArticleButton onClick={() => {
             const order = bySuperior[0] ? bySuperior[0] + 1 : 1;
             if (hasNewArticle) { // 这个不需要转到-1， 本身他就在-1
-              addBlockedArticle(-1, 0, order, 0, '未命名', '', bookid, true);
+              addBlockedArticle(-1, 0, order, 0, '未命名', ' ', bookid, true);
               toggleBlockedModal(true);
             } else {
-              toolMethods.addArticle(-1, 0, order, 0, '未命名', '', bookid, true);
+              toolMethods.addArticle(-1, 0, order, 0, '未命名', ' ', bookid, true);
               history.push(`${url}/-1`); // 转到 articleid为 -1
             }
           }}

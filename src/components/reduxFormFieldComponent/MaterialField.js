@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 
-const MaterialTextField = (props) => {
+export const MaterialTextField = (props) => {
   const {
     input, label, meta: { touched, error }, ...custom
   } = props;
@@ -29,7 +29,7 @@ MaterialTextField.propTypes = {
   multiLine: PropTypes.bool
 };
 
-const MaterialToogleField = (props) => {
+export const MaterialToogleField = (props) => {
   const {
     input, label, ...custom
   } = props;

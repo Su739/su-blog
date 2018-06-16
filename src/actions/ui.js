@@ -5,6 +5,7 @@ export const TOGGLE_LOGIN_FORM = 'TOGGLE_LOGIN_FORM';
 export const TOGGLE_REGISTER_FORM = 'TOGGLE_REGISTER_FORM';
 export const TOGGLE_BLOCKED_MODAL = 'TOGGLE_BLOCKED_MODAL';
 export const LOADING_EDITOR = 'LOADING_EDITOR';
+export const UPDATE_LATEST_SCROLL = 'UPDATE_LATEST_SCROLL';
 
 function loadingEditor(loading) {
   return {
@@ -48,10 +49,18 @@ function toggleExpandBtn(id) {
   };
 }
 
-function screenResize(width) {
+function screenResize(width, height) {
   return {
     type: SCREEN_RESIZE,
-    screenWidth: width
+    screenWidth: width,
+    screenHeight: height
+  };
+}
+
+function updateLatestScroll(latestScroll) {
+  return {
+    type: UPDATE_LATEST_SCROLL,
+    latestScroll
   };
 }
 
@@ -62,5 +71,6 @@ export default {
   toggleLoginForm,
   toggleRegisterForm,
   toggleBlockedModal,
-  loadingEditor
+  loadingEditor,
+  updateLatestScroll
 };

@@ -1,12 +1,14 @@
 .editor-page {
 }
 .editor-container {
-  flex: 1;
-  overflow-y: scroll;
+  flex: 1.1;
+  overflow-y: auto;
 }
 .editor-previewer {
   flex: 1;
   overflow: auto;
+  word-wrap: break-word;
+  padding: 0 10px;
 }
 .editor-and-previewer {
   display: flex;
@@ -16,15 +18,20 @@
 }
 .CodeMirror {
   width: auto;
-  height: auto;
   cursor: text;
-  padding-left: 20px;
   font-size: 16px;
+  height: auto;
+  padding-left: 16px;
+  padding-top: 120px;
+  min-height: calc(100vh - 184px);
+}
+.CodeMirror-scroll {
+  overflow: unset !important;
 }
 .tool-wall {
   background-color: rgb(197, 197, 197);
   z-index: 1;
-  transform: translateX(-15px);
+
   width: 36px;
   height: 100%;
 }
@@ -50,7 +57,7 @@
 
 @media (min-width: 768px) {
   .editor-page {
-    margin: 0 0 0 20%;
+    margin: 0 0 0 18%;
   }
 }
 .editor-loading-mask {
@@ -69,4 +76,15 @@
 }
 .editor-loading-box {
   text-align: center;
+}
+.editor-float-pane {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  right: 16px;
+  z-index: 1;
+  height: 80px;
+  border-left: 3px solid #00bcd5;
+  padding: 10px 20px;
+  width: auto;
 }

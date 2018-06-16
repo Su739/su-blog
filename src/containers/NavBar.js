@@ -50,7 +50,7 @@ class NavBar extends React.Component {
   }
   handleResize() {
     // eslint-disable-next-line no-undef
-    this.props.screenResize(window.innerWidth);
+    this.props.screenResize(window.innerWidth, window.innerHeight);
   }
 
   render() {
@@ -76,12 +76,11 @@ class NavBar extends React.Component {
   }
 }
 const mapStateToProps = (state, ownProps) => {
-  const matches = ownProps.location.pathname.match(/^\/[a-zA-Z0-9_-]+/);
-  const ownerName = matches && matches.length > 0 ? matches[0].slice(1) : null;
+  const { ownerName } = ownProps;
   const {
     auth: { isLogged, loginName },
     entities: { users },
-    ui: { screen: screenWidth, navbar: { isFetching } }
+    ui: { screen: { width }, navbar: { isFetching } }
   } = state;
 
   // 如果当前store中没有这个用户，显然返回undefined，然后参数在使用时要判断，没有的话要自己load，并处理ui渲染
@@ -90,7 +89,7 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     isFetching,
-    screenWidth,
+    screenWidth: width,
     isLogged, // 登录状态，以及登录的username
     loginName, // 名字
     ownerName,
@@ -104,7 +103,7 @@ const {
 } = actions;
 const mapDispatchToProps = dispatch =>
   ({
-    screenResize: width => dispatch(screenResize(width)),
+    screenResize: (width, height) => dispatch(screenResize(width, height)),
     toggleCatalog: display => dispatch(toggleCatalog(display)),
     loadUser: username => dispatch(loadUser(username)),
     refreshAuthentication: () => dispatch(refreshAuthentication()),

@@ -59,7 +59,7 @@ class CatalogItem extends React.Component {
     expandable: PropTypes.objectOf(PropTypes.bool),
     superior: PropTypes.number,
     isEditor: PropTypes.bool,
-    bySuperior: PropTypes.arrayOf(PropTypes.number),
+    bySuperior: PropTypes.objectOf(PropTypes.number),
     hasNewArticle: PropTypes.bool,
     toggleBlockedModal: PropTypes.func,
     addArticle: PropTypes.func,
@@ -75,14 +75,6 @@ class CatalogItem extends React.Component {
   constructor(props) {
     super(props);
     this.onExpandClick = this.onExpandClick.bind(this);
-    this.handleLinkClick = this.handleLinkClick.bind(this);
-  }
-
-  handleLinkClick(id) {
-    if (this.props.isEditor) {
-    }
-    // todo, the selected action
-    // dispatch(id);
   }
 
   onExpandClick() {
@@ -102,17 +94,18 @@ class CatalogItem extends React.Component {
     if (isEditor) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
       const newArticle = () => {
         if (hasNewArticle) {
-          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '', bookid, true);
+          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', ' ', bookid, true);
           toggleBlockedModal(true);
         } else { // 立即新建一个文章
-          addArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '', bookid, true);
+          addArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', ' ', bookid, true);
           history.push(url.replace(/\/[^/]*$/, '/-1'));
         }
       };
+      // 只有editor才会padding-left 7%，所以没写在类里
       return (
         <div className="catalog-item" style={{ paddingLeft: `${depth * 12}px` }}>
-          <div className="catalog-item-link">
-            <NavLink onClick={e => this.handleLinkClick(id, e)} style={superior !== 0 ? { color: '#999' } : { color: '#000' }} activeStyle={{ color: '#007bff' }} to={url}>
+          <div style={{ paddingLeft: '7%' }} className="catalog-item-link">
+            <NavLink style={superior !== 0 ? { color: '#999' } : { color: '#000' }} activeStyle={{ color: '#007bff' }} to={url}>
               {title}
             </NavLink>
           </div>

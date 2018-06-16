@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import PreviewContainer from '../PreviewContainer';
 import CatalogContainer from '../CatalogContainer';
 import Error404 from '../../components/Error404';
+import './ArticlePage.css';
 
 const ArticlePage = (props) => {
   console.log(props);

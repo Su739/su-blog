@@ -8,6 +8,22 @@ console.log(actions); */
 
 const API_ROOT = 'https://www.lg739.com/api/'; // 这里有 '/' action中的url开头不要加‘/'
 
+// Extracts the next page URL from Github API response.
+const getNextPageUrl = (response) => {
+  console.log(response);
+  const { link } = response.headers;
+  if (!link) {
+    return null;
+  }
+
+  const nextLink = link.split(',').find(s => s.indexOf('rel="next"') > -1);
+  if (!nextLink) {
+    return null;
+  }
+
+  return nextLink.trim().split(';')[0].slice(1, -1);
+};
+
 // Fetches an API response and normalizes the result JSON according to schema.
 // This makes every API response have the same shape, regardless of how nested it was.
 const callApi = (endpoint, apischema, result) => {
@@ -15,23 +31,23 @@ const callApi = (endpoint, apischema, result) => {
 
   return axios.get(fullUrl, { withCredentials: true })
     .then(
-      response => normalize({ [result]: response.data }, apischema),
+      (response) => {
+        const nextPageUrl = getNextPageUrl(response);
+        return { ...normalize(response.data, apischema), nextPageUrl };
+      },
       error => Promise.reject(error)
     );
 };
-const articleSchema = { article: new schema.Entity('articles') };
-const bookSchema = {
-  book: new schema.Entity('books', { articles: [articleSchema.article] })
-};
-const userSchema = {
-  user: new schema.Entity('users', { Books: [bookSchema.book] }, { idAttribute: 'userName' })
-};
+const articleSchema = new schema.Entity('articles');
+const bookSchema = new schema.Entity('books', { articles: [articleSchema] });
+const userSchema = new schema.Entity('users', { Books: [bookSchema] }, { idAttribute: 'userName' });
 
 // Schemas for API responses.
 export const Schemas = {
   USER: userSchema,
   BOOK: bookSchema,
-  ARTICLE: articleSchema
+  ARTICLE: articleSchema,
+  articleListSchema: [articleSchema]
 };
 
 // Action key that carries API call info interpreted by this Redux middleware.

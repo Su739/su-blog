@@ -16,10 +16,10 @@ const fetchBook = bookid => ({
 
 // Fetches a single user from API unless it is cached.
 // Relies on Redux Thunk middleware.
-const loadBook = bookid => (dispatch, getState) => {
+const loadBook = (bookid, refresh) => (dispatch, getState) => {
   const book = getState().entities.books[bookid];
   // articles可以确保book已经请求，不然可能只有book没有articles
-  if (book && book.articles) {
+  if (book && book.articles && !refresh) {
     return null;
   }
   return dispatch(fetchBook(bookid));

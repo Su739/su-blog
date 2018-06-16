@@ -3,11 +3,12 @@ import { reducer as formReducer } from 'redux-form';
 import omit from 'lodash/omit';
 import merge from 'lodash/merge';
 import cloneDeep from 'lodash/cloneDeep';
+import union from 'lodash/union';
 import actions from '../actions';
 
 const {
   types: {
-    uiTypes, articleTypes, bookTypes, authTypes, userTypes, editingDataTypes
+    uiTypes, articleTypes, bookTypes, authTypes, userTypes, editingDataTypes, articleListTypes
   }
 } = actions;
 
@@ -30,6 +31,40 @@ const entities = (state = { users: {}, books: {}, articles: {} }, action) => {
 
   return state;
 };
+
+const articleList = (state = {
+  isFetching: false,
+  nextPageUrl: undefined,
+  pageCount: 0,
+  ids: []
+}, action) => {
+  switch (action.type) {
+    case articleListTypes.ARTICLE_LIST_REQUEST:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case articleListTypes.ARTICLE_LIST_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        ids: union(state.ids, action.response.result),
+        nextPageUrl: action.response.nextPageUrl,
+        pageCount: state.pageCount + 1
+      };
+    case articleListTypes.ARTICLE_LIST_FAILURE:
+      return {
+        ...state,
+        isFetching: false
+      };
+    default:
+      return state;
+  }
+};
+
+const pagination = combineReducers({
+  articleList
+});
 
 /**
  * store some editing data,the articles data use array
@@ -96,14 +131,54 @@ const editingData = (state = {}, action) => {
               .articles.concat(action.newArticle.id)
           }
         },
-        hasNewArticle: action.hasNewArticle
+        newArticle: action.newArticle
       };
+    // 删除数据集合中的 -1项，删除newArticle
+    case editingDataTypes.REMOVE_ARTICLE:
+      if (state.articlesById[action.id]) {
+        return omit({
+          ...state,
+          articlesById: omit(state.articlesById, [[action.id]]),
+          booksById: {
+            ...state.booksById,
+            [state.articlesById[action.id].parent]: {
+              ...state.booksById[state.articlesById[action.id].parent],
+              articles: state.booksById[state.articlesById[action.id].parent]
+                .articles.slice(0, -1)
+            }
+          }
+        }, ['newArticle']);
+      }
+      return state;
     case editingDataTypes.ADD_BLOCKED_ARTICLE:
       return {
         ...state,
         blockedArticle: action.blockedArticle
       };
     case editingDataTypes.UPDATE_ARTICLE:
+      if (action.newArticle.parent) {
+        return {
+          ...state,
+          articlesById: {
+            ...state.articlesById,
+            [action.newArticle.id]: {
+              ...state.articlesById[action.newArticle.id],
+              ...action.newArticle
+            }
+          },
+          booksById: {
+            ...state.booksById,
+            [action.newArticle.parent]: {
+              ...state.booksById[action.newArticle.parent],
+              // 加上，然后去重，为了能在post新文章后，使用他来增加新文章
+              articles: [
+                ...new Set(state
+                  .booksById[action.newArticle.parent].articles.concat(action.newArticle.id))
+              ]
+            }
+          }
+        };
+      }
       return {
         ...state,
         articlesById: {
@@ -113,20 +188,6 @@ const editingData = (state = {}, action) => {
             ...action.newArticle
           }
         }
-      };
-    case editingDataTypes.REMOVE_ARTICLE:
-      return {
-        ...state,
-        articlesById: omit(state.articlesById, [[action.id]]),
-        booksById: {
-          ...state.booksById,
-          [state.articlesById[action.id].parent]: {
-            ...state.booksById[state.articlesById[action.id].parent],
-            articles: state.booksById[state.articlesById[action.id].parent]
-              .articles.slice(0, -1)
-          }
-        },
-        hasNewArticle: action.hasNewArticle
       };
     case editingDataTypes.REMOVE_BLOCKED_ARTICLE:
       return omit(state, ['blockedArticle']);
@@ -157,10 +218,20 @@ const result = (state = {}, action) => {
 // #region ui region
 
 // eslint-disable-next-line no-undef
-const screen = (state = window.innerWidth, action) => {
+const screen = (state = { width: window.innerWidth, height: window.innerHeight }, action) => {
   switch (action.type) {
     case uiTypes.SCREEN_RESIZE:
-      return action.screenWidth;
+      return { width: action.screenWidth, height: action.screenHeight };
+    default:
+      return state;
+  }
+};
+
+// eslint-disable-next-line no-undef
+const latestScroll = (state = document.documentElement.scrollTop, action) => {
+  switch (action.type) {
+    case uiTypes.UPDATE_LATEST_SCROLL:
+      return action.latestScroll;
     default:
       return state;
   }
@@ -288,6 +359,7 @@ const ui = combineReducers({
   navbar,
   preview,
   screen,
+  latestScroll,
   catalog,
   popwindow,
   editor
@@ -310,6 +382,7 @@ const requestError = (state = null, action) => {
 const rootReducer = combineReducers({
   auth,
   entities,
+  pagination,
   result,
   ui,
   requestError,

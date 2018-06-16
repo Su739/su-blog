@@ -1,0 +1,30 @@
+.a-li {
+  list-style: none;
+}
+.a-li-title {
+  text-decoration: none;
+  font-size: 38px;
+  font-weight: 100;
+  font-family: "Courier New", Courier, monospace;
+  color: #00bcd5;
+}
+.a-li-title:hover {
+  text-decoration: underline;
+}
+.a-li-sparator {
+  width: 20%;
+  margin: 70px auto;
+}
+.a-li-post {
+  font-size: 0.7em;
+  color: rgb(168, 168, 168);
+  vertical-align: middle;
+  line-height: 1em;
+}
+.a-li-writer {
+  color: #00bcd5;
+  text-decoration: none;
+}
+.a-li-writer:hover {
+  text-decoration: underline;
+}

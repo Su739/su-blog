@@ -1,6 +1,7 @@
 import loadArticle, * as articleTypes from './loadArticle';
 import loadBook, * as bookTypes from './loadBook';
 import loadUser, * as userTypes from './loadUser';
+import loadArticleList, * as articleListTypes from './loadArticleList';
 import uiActions, * as uiTypes from './ui';
 import editingDataActions, * as editingDataTypes from './editingData';
 import refreshAuthentication, * as authTypes from './refreshAuthentication';
@@ -19,13 +20,15 @@ export default {
     RESET_REQUEST_ERROR,
     uiTypes,
     editingDataTypes,
-    authTypes
+    authTypes,
+    articleListTypes
   },
   loadArticle,
   loadBook,
   loadUser,
   resetRequestError,
   refreshAuthentication,
+  loadArticleList,
   ...uiActions,
   ...editingDataActions
 };

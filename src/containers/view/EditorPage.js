@@ -41,7 +41,7 @@ ToolButton.propTypes = {
 class EditorPage extends React.Component {
   componentDidMount() {
     const {
-      requestError, loadBook, loadingEditor, bookid, initialEditingData
+      requestError, loadBook, loadingEditor, bookid, initialEditingData, books, articles
     } = this.props;
     // 当通过输入栏手动输入url或者点击写文章按钮时，url中不含有articleid参数，而且很可能这时候也没有加载book，
     // 导致暂时无法获得书中superior为-1的项(readme文章，现在还没有好办法，就用了这个办法)
@@ -60,7 +60,11 @@ class EditorPage extends React.Component {
       Promise.all([loadBook(bookid), loadArticle(articleid)]).then(() => loadingEditor(false));
     }
     */
-    if (!requestError) {
+    console.log('books');
+    if (books[bookid]) {
+      initialEditingData(articles, books);
+      loadingEditor(false);
+    } else {
       loadBook(bookid)
         .then((res) => {
           if (!res.requestError) {
@@ -73,19 +77,29 @@ class EditorPage extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    // url改变，复位请求错误
+    if (prevProps.articleid !== this.props.articleid) {
+      if (prevProps.requestError) {
+        this.props.resetRequestError();
+      }
+    }
     // 在显示错误页的组件中，我觉得都应该这么写，不然如果数据已经加载成功，就会卡在错误页
     // componentDidUpdate是‘更新发生时‘立即执行，第二个条件也是遇到问题才写上的，意味着第二次请求又有错,
     // 但是也不确定prevProps.requestError && !this.props.requestError这个是正确的,（基本肯定是错误的，因为下个状态如果load过就得不到更新）
-    if (prevProps.requestError) {
-      this.props.resetRequestError();
-    }
+    // 要把清理上次请求错误写在判断内部，不然如果比他等级低的组件dispatch一个requestError，这个组件的状态会被更新，然后又把这个requestError清楚掉，造成无限循环
     if (prevProps.bookid !== this.props.bookid) {
+      if (prevProps.requestError) {
+        this.props.resetRequestError();
+      }
       this.props.loadBook(this.props.bookid);
     }
   }
 
   componentWillUnmount() {
     // 销毁editingData
+    this.props.destroyDeitingData();
+    // 这个很重要，不然下次在加载数据完成之前，没有他阻塞，就会报错(数据不存在)
+    this.props.loadingEditor(true);
   }
   render() {
     console.log(this.props);
@@ -159,12 +173,14 @@ class EditorPage extends React.Component {
 }
 
 EditorPage.propTypes = {
+  articleid: PropTypes.number,
   history: PropTypes.objectOf(PropTypes.any),
   loadBook: PropTypes.func,
   loadingEditor: PropTypes.func,
   resetRequestError: PropTypes.func,
   bookid: PropTypes.number,
   initialEditingData: PropTypes.func,
+  destroyDeitingData: PropTypes.func,
   match: PropTypes.shape({
     isExact: PropTypes.bool,
     params: PropTypes.object.isRequired,
@@ -185,7 +201,7 @@ EditorPage.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   const { articleid, bookid } = ownProps.match.params;
   const {
-    // entities: { books, articles },
+    entities: { books, articles },
     auth: { isLogged, loginName },
     ui: { editor: { isFetching, loading }, popwindow: { displayBlockedModal } },
     form,
@@ -205,8 +221,11 @@ const mapStateToProps = (state, ownProps) => {
   } */
 
   return {
+    books,
+    articles,
     // articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
     bookid: parseInt(bookid, 10),
+    articleid: parseInt(articleid, 10),
     isLogged,
     isFetching,
     loading,
@@ -218,10 +237,16 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const {
-  loadBook, loadArticle, loadingEditor, initialEditingData, resetRequestError
+  loadBook, loadArticle, loadingEditor, initialEditingData, destroyDeitingData, resetRequestError
 } = actions;
 const submitArticle = () => submit('editorForm');
 
 export default withRouter(connect(mapStateToProps, {
-  submitArticle, loadBook, loadArticle, loadingEditor, initialEditingData, resetRequestError
+  submitArticle,
+  loadBook,
+  loadArticle,
+  loadingEditor,
+  initialEditingData,
+  resetRequestError,
+  destroyDeitingData
 })(EditorPage));
