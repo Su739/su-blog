@@ -3,6 +3,30 @@ import { CALL_API, Schemas } from '../middleware/api';
 export const USER_REQUEST = 'USER_REQUEST';
 export const USER_SUCCESS = 'USER_SUCCESS';
 export const USER_FAILURE = 'USER_FAILURE';
+export const ADD_USER_ON_EDIT = 'ADD_USER_ON_EDIT';
+export const ADD_USER_ENTITY = 'ADD_USER_ENTITY';
+export const UPDATE_USER_ENTITY = 'UPDATE_USER_ENTITY';
+export const DELETE_USER_ENTITY = 'DELETE_USER_ENTITY';
+
+const addUserOnEdit = user => ({
+  type: ADD_USER_ON_EDIT,
+  user
+});
+
+const addUserEntity = user => ({
+  type: ADD_USER_ENTITY,
+  user
+});
+
+const updateUserEntity = user => ({
+  type: UPDATE_USER_ENTITY,
+  user
+});
+
+const deleteUserEntity = id => ({
+  type: DELETE_USER_ENTITY,
+  id
+});
 
 const fetchUser = username => ({
   [CALL_API]: {
@@ -18,9 +42,11 @@ const fetchUser = username => ({
 const loadUser = username => (dispatch, getState) => {
   const user = getState().entities.users[username];
   if (user) {
-    return null;
+    return Promise.resolve(null);
   }
   return dispatch(fetchUser(username));
 };
 
-export default loadUser;
+export default {
+  loadUser, addUserEntity, updateUserEntity, deleteUserEntity
+};

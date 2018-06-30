@@ -23,7 +23,6 @@ class PreviewContainer extends React.Component {
     const {
       articleid, article
     } = this.props;
-    console.log(this.props);
     if ((!article || !article.content) && !Number.isNaN(articleid)) {
       this.props.loadArticle(articleid);
     }

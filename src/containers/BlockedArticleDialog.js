@@ -7,7 +7,6 @@ import actions from '../actions';
 import BlockedModal from '../components/BlockedModal';
 
 const BlockedArticleDialog = (props) => {
-  console.log(props);
   const {
     displayBlockedModal, toggleBlockedModal, resetForm,
     submitArticle, addArticle, removeArticle, blockedArticle

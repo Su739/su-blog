@@ -1,39 +1,70 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import IconButton from 'material-ui/IconButton';
+import Edit from 'material-ui/svg-icons/image/edit';
+import Delete from 'material-ui/svg-icons/action/delete';
+import Add from 'material-ui/svg-icons/content/add';
+import dateFormatter from './utils/dateFormatter';
+import './Book.css';
+
+export const AddBookButton = ({ onClick }) => (
+  <button onClick={onClick} className="book-pinned"><Add /></button>
+);
+AddBookButton.propTypes = {
+  onClick: PropTypes.func
+};
 
 const Book = (props) => {
   const {
-    name, description, bookCover, bookId,
+    id, username, name, description, updatedAt, createdAt, handleEditClick, loginName
   } = props;
-  console.log(bookId);
-  function editBookDetail(id) {
-    console.log(id);
-    props.setEditBookId(id);
-  }
   return (
-    <li className="book-pinned">
+    <div className="book-pinned">
       <div className="book-pinned-content">
-        <span className="book-pinned-title">{name}</span>
-        <span className="book-pinned-post-date">3/1/18</span>
+        <Link to={`/${username}/book/${id}`} className="book-pinned-title">{name}</Link>
+        <span className="book-pinned-post-date">{dateFormatter(createdAt)}</span>
         <p className="book-pinned-description">{description}</p>
       </div>
-      <img className="book-pinned-cover" src={bookCover} alt={name} title={name} />
-      <div className="book-pinned-dash">
-        <button onClick={e => editBookDetail(bookId, e)}>
-          <i className="iconfont icon-pen_" />
-        </button>
-        <button>
-          <i className="iconfont icon-dustbin" />
-        </button>
-      </div>
-    </li>
+      {loginName === username &&
+        <div className="book-pinned-toolbar">
+          <IconButton
+            style={{
+              width: '24px', height: '24px', padding: 0, marginLeft: '12px'
+            }}
+            tooltip="编辑"
+            tooltipPosition="top-center"
+            onClick={() => handleEditClick(id)}
+          >
+            <Edit color="rgba(39, 40, 34, 0.87)" />
+          </IconButton>
+          <IconButton
+            style={{
+              width: '24px', height: '24px', padding: 0, margin: '0 12px 0'
+            }}
+            tooltip="删除"
+            tooltipPosition="top-center"
+          >
+            <Delete color="rgba(39, 40, 34, 0.87)" />
+          </IconButton>
+        </div>}
+    </div>
   );
 };
 
 Book.propTypes = {
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  bookCover: PropTypes.string.isRequired,
-  bookId: PropTypes.number.isRequired,
-  setEditBookId: PropTypes.func,
+  id: PropTypes.number,
+  loginName: PropTypes.string,
+  username: PropTypes.string,
+  name: PropTypes.string,
+  description: PropTypes.string,
+  createdAt: PropTypes.string,
+  handleEditClick: PropTypes.func
 };
+Book.defaultProps = {
+  name: 'xxxx',
+  description: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  updatedAt: '2018-05-15T11:07:01.418Z'
+};
+
+export default Book;

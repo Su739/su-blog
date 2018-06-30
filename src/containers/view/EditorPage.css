@@ -22,8 +22,6 @@
   font-size: 16px;
   height: auto;
   padding-left: 16px;
-  padding-top: 120px;
-  min-height: calc(100vh - 184px);
 }
 .CodeMirror-scroll {
   overflow: unset !important;
@@ -78,13 +76,13 @@
   text-align: center;
 }
 .editor-float-pane {
-  position: absolute;
-  top: 10px;
-  left: 16px;
-  right: 16px;
-  z-index: 1;
-  height: 80px;
+  margin: 8px 16px;
   border-left: 3px solid #00bcd5;
   padding: 10px 20px;
   width: auto;
+}
+.editor-abstract {
+  border-radius: 6px;
+  width: 100%;
+  background: #f7f8f9;
 }

@@ -8,40 +8,39 @@ const BlockedModal = (props) => {
   const {
     okText, refuseText, closeModal, display, onOkClick, onCancelClick, onRefuseClick
   } = props;
-  console.log(props);
   return (
     display
       ?
         <div>
-          <Modal closeModal={closeModal}>
-            <div className="block-modal-cantaine">
-              <div className="block-modal-title">
-                <p>当前文章还没有保存，请选择以下操作：</p>
-              </div>
-              <div className="button-group">
-                <div>
-                  <RaisedButton
-                    label={okText}
-                    primary
-                    fullWidth
-                    onClick={onOkClick}
-                  />
-                </div>
-                <div>
-                  <RaisedButton
-                    label={refuseText}
-                    secondary
-                    fullWidth
-                    onClick={onRefuseClick}
-                  />
-                </div>
-                <div>
-                  <RaisedButton
-                    label="取消"
-                    fullWidth
-                    onClick={onCancelClick}
-                  />
-                </div>
+          <Modal
+            closeModal={closeModal}
+            title="当前文章还没有保存，请选择以下操作："
+          >
+            <div className="button-group">
+              {okText && onOkClick &&
+              <div>
+                <RaisedButton
+                  label={okText}
+                  primary
+                  fullWidth
+                  onClick={onOkClick}
+                />
+              </div>}
+              {refuseText && onRefuseClick &&
+              <div>
+                <RaisedButton
+                  label={refuseText}
+                  secondary
+                  fullWidth
+                  onClick={onRefuseClick}
+                />
+              </div>}
+              <div>
+                <RaisedButton
+                  label="取消"
+                  fullWidth
+                  onClick={onCancelClick}
+                />
               </div>
             </div>
           </Modal>

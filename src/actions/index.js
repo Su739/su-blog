@@ -1,6 +1,6 @@
-import loadArticle, * as articleTypes from './loadArticle';
-import loadBook, * as bookTypes from './loadBook';
-import loadUser, * as userTypes from './loadUser';
+import articleActions, * as articleTypes from './articleActions';
+import bookActions, * as bookTypes from './bookActions';
+import userActions, * as userTypes from './userActions';
 import loadArticleList, * as articleListTypes from './loadArticleList';
 import uiActions, * as uiTypes from './ui';
 import editingDataActions, * as editingDataTypes from './editingData';
@@ -23,9 +23,9 @@ export default {
     authTypes,
     articleListTypes
   },
-  loadArticle,
-  loadBook,
-  loadUser,
+  ...articleActions,
+  ...bookActions,
+  ...userActions,
   resetRequestError,
   refreshAuthentication,
   loadArticleList,

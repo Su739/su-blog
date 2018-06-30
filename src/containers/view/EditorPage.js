@@ -9,6 +9,7 @@ import Help from 'material-ui/svg-icons/action/help';
 import Image from 'material-ui/svg-icons/image/image';
 import Save from 'material-ui/svg-icons/content/save';
 import CircularProgress from 'material-ui/CircularProgress';
+import BlockedArticleDialog from '../BlockedArticleDialog';
 import actions from '../../actions';
 import CatalogContainer from '../CatalogContainer';
 import EditorForm from '../EditorForm';
@@ -41,7 +42,7 @@ ToolButton.propTypes = {
 class EditorPage extends React.Component {
   componentDidMount() {
     const {
-      requestError, loadBook, loadingEditor, bookid, initialEditingData, books, articles
+      loadBook, loadingEditor, bookid, initialEditingData, books, articles, refreshAuthentication
     } = this.props;
     // 当通过输入栏手动输入url或者点击写文章按钮时，url中不含有articleid参数，而且很可能这时候也没有加载book，
     // 导致暂时无法获得书中superior为-1的项(readme文章，现在还没有好办法，就用了这个办法)
@@ -60,7 +61,8 @@ class EditorPage extends React.Component {
       Promise.all([loadBook(bookid), loadArticle(articleid)]).then(() => loadingEditor(false));
     }
     */
-    console.log('books');
+    // 刷新登录状态
+    // refreshAuthentication().then();
     if (books[bookid]) {
       initialEditingData(articles, books);
       loadingEditor(false);
@@ -68,8 +70,8 @@ class EditorPage extends React.Component {
       loadBook(bookid)
         .then((res) => {
           if (!res.requestError) {
-            const { books, articles } = res.response.entities;
-            initialEditingData(articles, books);
+            const { books: resBooks, resArticles } = res.response.entities;
+            initialEditingData(resArticles, resBooks);
             loadingEditor(false);
           }
         });
@@ -102,29 +104,28 @@ class EditorPage extends React.Component {
     this.props.loadingEditor(true);
   }
   render() {
-    console.log(this.props);
     const {
-      toggleBlockedModal, submitArticle, hasNewArticle, displayBlockedModal,
-      match, isLogged, isFetching, formValues, requestError, loading, history
+      submitArticle, match, isLogged, isFetching, formValues, requestError, loading, history
     } = this.props;
     if (requestError) {
       return <Error404 statusCode={requestError.status} message={requestError.message} />;
     }
-    if (isLogged) {
-      return (
-        loading ?
-          <EditorLoadingPage />
-          :
-          <div className="editor-page">
-            <CatalogContainer
+    if (loading) {
+      return <EditorLoadingPage />;
+    }
+    return (
+      isLogged ?
+        <div className="editor-page">
+          <BlockedArticleDialog />
+          <CatalogContainer
               // 当将history传入进去后，之前的navlink active就会起作用，因为每次点击之后history会变，座椅catalog会re-render
-              history={history}
-              url={`/${match.params.username}/book/${match.params.bookid}/~/edit`}
-              isEditor
-              bookid={parseInt(match.params.bookid, 10)}
-            />
-            <div className="editor-and-previewer">
-              {
+            history={history}
+            url={`/${match.params.username}/book/${match.params.bookid}/~/edit`}
+            isEditor
+            bookid={parseInt(match.params.bookid, 10)}
+          />
+          <div className="editor-and-previewer">
+            {
                 isFetching &&
                 <div className="editor-loading-mask">
                   <div className="editor-loading-wrapper">
@@ -134,45 +135,47 @@ class EditorPage extends React.Component {
                   </div>
                 </div>
               }
-              <div className="editor-container">
-                <Switch>
-                  <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorForm} />
-                  <Route exact path="/:username/book/:bookid/~/edit" component={EditorForm} />
-                  <Route path="/" component={Error404} />
-                </Switch>
-              </div>
-              <div className="tool-wall">
-                <div className="tool-box">
-                  <div className="tool-box-top">
-                    <ToolButton tooltip="交换窗口位置">
-                      <SwapHoriz />
-                    </ToolButton>
-                    <ToolButton tooltip="上传图片">
-                      <Image />
-                    </ToolButton>
-                    <ToolButton tooltip="语法提示">
-                      <Help />
-                    </ToolButton>
-                  </div>
-                  <div className="tool-box-bottom">
-                    <ToolButton onClick={submitArticle} tooltip="保存提交">
-                      <Save color="#007bff" />
-                    </ToolButton>
-                  </div>
+            <div className="editor-container">
+              <Switch>
+                <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorForm} />
+                <Route exact path="/:username/book/:bookid/~/edit" component={EditorForm} />
+                <Route path="/" component={Error404} />
+              </Switch>
+            </div>
+            <div className="tool-wall">
+              <div className="tool-box">
+                <div className="tool-box-top">
+                  <ToolButton tooltip="交换窗口位置">
+                    <SwapHoriz />
+                  </ToolButton>
+                  <ToolButton tooltip="上传图片">
+                    <Image />
+                  </ToolButton>
+                  <ToolButton tooltip="语法提示">
+                    <Help />
+                  </ToolButton>
+                </div>
+                <div className="tool-box-bottom">
+                  <ToolButton onClick={submitArticle} tooltip="保存提交">
+                    <Save color="#007bff" />
+                  </ToolButton>
                 </div>
               </div>
-              <div className="editor-previewer">
-                <EditorPreviewer content={formValues ? formValues.content : 'loading...'} title={formValues ? formValues.title : ''} />
-              </div>
+            </div>
+            <div className="editor-previewer">
+              <EditorPreviewer content={formValues ? formValues.content : 'loading...'} title={formValues ? formValues.title : ''} />
             </div>
           </div>
-      );
-    }
-    return (<Redirect to={`/${match.params.username}`} />);
+        </div>
+        :
+        <Redirect to={`/${match.params.username}`} />
+    );
   }
 }
 
 EditorPage.propTypes = {
+  books: PropTypes.objectOf(PropTypes.any),
+  articles: PropTypes.objectOf(PropTypes.any),
   articleid: PropTypes.number,
   history: PropTypes.objectOf(PropTypes.any),
   loadBook: PropTypes.func,
@@ -192,21 +195,18 @@ EditorPage.propTypes = {
   formValues: PropTypes.objectOf(PropTypes.any),
   submitArticle: PropTypes.func,
   requestError: PropTypes.objectOf(PropTypes.any),
-  toggleBlockedModal: PropTypes.func,
-  displayBlockedModal: PropTypes.bool,
-  loading: PropTypes.bool,
-  hasNewArticle: PropTypes.bool
+  loading: PropTypes.bool
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { articleid, bookid } = ownProps.match.params;
+  const { articleid, bookid, username } = ownProps.match.params;
   const {
     entities: { books, articles },
-    auth: { isLogged, loginName },
+    auth: { loginName },
     ui: { editor: { isFetching, loading }, popwindow: { displayBlockedModal } },
     form,
     requestError,
-    editingData: { articlesById, hasNewArticle }
+    editingData: { hasNewArticle }
   } = state;
   const formValues = form && form.editorForm && form.editorForm.values;
   /*
@@ -226,7 +226,7 @@ const mapStateToProps = (state, ownProps) => {
     // articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
     bookid: parseInt(bookid, 10),
     articleid: parseInt(articleid, 10),
-    isLogged,
+    isLogged: loginName === username,
     isFetching,
     loading,
     formValues,
@@ -237,7 +237,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const {
-  loadBook, loadArticle, loadingEditor, initialEditingData, destroyDeitingData, resetRequestError
+  loadBook, loadArticle, loadingEditor, initialEditingData, destroyDeitingData, resetRequestError, refreshAuthentication
 } = actions;
 const submitArticle = () => submit('editorForm');
 

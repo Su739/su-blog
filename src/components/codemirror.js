@@ -79,7 +79,6 @@ class CodeMirrorEditor extends React.Component {
   }
 
   handleChange() {
-    console.log(this);
     if (this.editor) {
       const value = this.editor.getValue();
       if (value !== this.props.value) {

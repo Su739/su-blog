@@ -94,10 +94,10 @@ class CatalogItem extends React.Component {
     if (isEditor) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
       const newArticle = () => {
         if (hasNewArticle) {
-          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', ' ', bookid, true);
+          addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
           toggleBlockedModal(true);
         } else { // 立即新建一个文章
-          addArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', ' ', bookid, true);
+          addArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
           history.push(url.replace(/\/[^/]*$/, '/-1'));
         }
       };

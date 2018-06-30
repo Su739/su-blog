@@ -5,16 +5,16 @@ import { connect } from 'react-redux';
 import { Prompt, withRouter } from 'react-router-dom';
 import axios from 'axios';
 import actions from '../actions';
-import { MaterialTextField, MaterialToogleField } from '../components/reduxFormFieldComponent/MaterialField';
+import { MaterialToogleField } from '../components/reduxFormFieldComponent/MaterialField';
 import EditorField from '../components/EditorField';
 import EditorTitleField from '../components/EditorTitleFied';
 import rootUrl from '../utils/rootUrl';
 
 export const submitArticle = ({
-  id, title, depth, order, parent, superior, content, ispublic, writerid
+  id, title, depth, order, parent, superior, content, ispublic, writerid, abstract
 }) =>
   axios.post(`${rootUrl}/api/articles/article`, {
-    id, title, depth, order, parent, superior, content, ispublic, writerid
+    id, title, depth, order, parent, superior, content, ispublic, writerid, abstract
   }, { withCredentials: true });
 
 class EditorForm extends React.Component {
@@ -37,7 +37,6 @@ class EditorForm extends React.Component {
     const {
       articleid, loadArticle, requestError, updateArticle, initialValues
     } = this.props;
-    console.log(this.props);
     // 第二个条件，没有使用articleid === -1， 因为在没有新建文章时请求-1需要他报404错，而initialValues.id确定的是editingdata中是否有新文章
     // 由于entities中不会出现新建的文章，所以即使存在新建文章loadXXX中不会返回null，而是去请求-1这个文章
     // 第三个条件确定文章内容没有加载的情况下才会请求文章，不然返回null then报错
@@ -45,7 +44,6 @@ class EditorForm extends React.Component {
       if (!initialValues || initialValues.id !== -1) {
         loadArticle(articleid).then((res) => {
           if (!res.requestError) {
-            console.log(res);
             const {
               id, depth, order, superior, title, content, parent, public: ispublic
             } = res.response.entities.articles[articleid];
@@ -59,7 +57,6 @@ class EditorForm extends React.Component {
     }
   }
   componentDidUpdate(prevProps) {
-    console.log(prevProps);
     // 在不提交的情况下，恢复之前访问的文章的状态。。。可能还需要改进，但我不知道怎么改们只能等遇到问题
     // 已更改一次，只有在没有删除上一次访问(编辑)的article，才会还原
     if (this.props.location.pathname !== prevProps.location.pathname
@@ -75,7 +72,6 @@ class EditorForm extends React.Component {
       if (!this.props.initialValues || !this.props.initialValues.content) {
         this.props.loadArticle(this.props.articleid).then((res) => {
           if (!res.requestError) {
-            console.log(res);
             const {
               id, content // , depth, order, superior, title, parent, public: ispublic
             } = res.response.entities.articles[this.props.articleid];
@@ -123,6 +119,14 @@ class EditorForm extends React.Component {
             name="ispublic"
             component={MaterialToogleField}
             type="checkbox"
+          />
+          <Field
+            className="editor-abstract"
+            rows="3"
+            wrap="hard"
+            maxlength="200"
+            name="abstract"
+            component="textarea"
           />
         </div>
         <Field name="id" component="input" type="hidden" />
@@ -193,12 +197,14 @@ export default withRouter(connect(mapStateToProps, {
   onSubmit: submitArticle,
   onSubmitSuccess: (result, dispatch, props) => {
     const article = Array.isArray(result.data) ? result.data[0] : result.data;
-    const { username, bookid } = props.match.params;
+    const { username, bookid, articleid } = props.match.params;
     // 在这里destroy而不是在提交时的原因，是如果提交时destory
     // dispatch(loadBook(article.parent));
     dispatch(loadArticle(article.id, true));
     dispatch(removeArticle(-1));
     dispatch(updateArticle(article));
-    props.history.push(`/${username}/book/${bookid}/~/edit/${article.id}`);
+    if (articleid === -1) {
+      props.history.replace(`/${username}/book/${bookid}/~/edit/${article.id}`);
+    }
   }
 })(EditorForm)));

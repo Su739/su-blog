@@ -8,7 +8,6 @@ import Error404 from '../../components/Error404';
 import './ArticlePage.css';
 
 const ArticlePage = (props) => {
-  console.log(props);
   const { match, error } = props;
   if (error) {
     return <Error404 />;

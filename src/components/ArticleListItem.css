@@ -28,3 +28,6 @@
 .a-li-writer:hover {
   text-decoration: underline;
 }
+.a-li-abstract {
+  color: rgba(39, 39, 39, 0.801);
+}

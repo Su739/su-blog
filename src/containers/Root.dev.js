@@ -11,8 +11,7 @@ import LoginForm from './form/LoginForm';
 import Error404 from '../components/Error404';
 import ArticlePage from './view/ArticlePage';
 import EditorPage from './view/EditorPage';
-import BlockedArticleDialog from './BlockedArticleDialog';
-// import UserPage from './UserPage';
+import UserPage from './view/UserPage';
 import HomePage from './view/HomePage';
 
 
@@ -24,7 +23,6 @@ const Root = ({ store }, ...props) => (
           <V0MuiThemeProvider muiTheme={getMuiTheme()}>
             <div>
               <LoginForm />
-              <BlockedArticleDialog />
               <Switch>
                 <Route exact path="/" component={HomePage} />
                 <Route
@@ -35,7 +33,7 @@ const Root = ({ store }, ...props) => (
                         <NavBar ownerName={match.params.username} />
                         <div className="content">
                           <Switch>
-                            <Route exact path={match.url} render={() => <div>等一个UserPage</div>} />
+                            <Route exact path="/:username" component={UserPage} />
                             <Route exact path="/:username/book/:bookid/~/edit" component={EditorPage} />
                             <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorPage} />
                             <Route path="/:username/book/:bookid" component={ArticlePage} />

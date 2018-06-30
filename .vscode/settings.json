@@ -10,7 +10,6 @@
   },
   "workbench.iconTheme": "vscode-icons",
   "workbench.colorTheme": "Atom One Dark",
-  "editor.formatOnSave": true,
   "[javascript]": {
     "editor.formatOnSave": false
   },

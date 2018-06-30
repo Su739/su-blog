@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 
 class ChapterToolBar extends Component {
   static propTypes = {
-    isChapter: PropTypes.bool,
+    isChapter: PropTypes.bool
   };
   constructor(props) {
     super(props);
     this.state = {
-      a: 'b',
+      a: 'b'
     };
     /* this.addNewChapter = this.addNewChapter.bind(this);
     this.addNewArticle = this.addNewArticle.bind(this);

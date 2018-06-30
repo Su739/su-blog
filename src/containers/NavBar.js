@@ -39,6 +39,8 @@ class NavBar extends React.Component {
     if (prevProps.ownerName !== this.props.ownerName) {
       this.props.loadUser(this.props.ownerName);
     }
+    console.log(prevProps);
+    console.log(this.props);
     if (prevProps.loginName !== this.props.loginName) {
       this.props.loadUser(this.props.loginName);
     }

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
+import SelectField from 'material-ui/SelectField';
 
 export const MaterialTextField = (props) => {
   const {
@@ -50,7 +51,32 @@ MaterialToogleField.propTypes = {
   label: PropTypes.string
 };
 
+export const MaterialSelectField = ({
+  input, label, meta: { touched, error }, children, ...custom
+}) => (
+  <SelectField
+    floatingLabelText={label}
+    errorText={touched && error}
+    onChange={(event, index, value) => input.onChange(value)}
+    {...input}
+    {...custom}
+  >
+    {children}
+  </SelectField>
+);
+
+MaterialSelectField.propTypes = {
+  input: PropTypes.objectOf(PropTypes.any),
+  meta: PropTypes.shape({
+    touched: PropTypes.bool,
+    error: PropTypes.string
+  }),
+  children: PropTypes.node,
+  label: PropTypes.string
+};
+
 export default {
   MaterialTextField,
-  MaterialToogleField
+  MaterialToogleField,
+  MaterialSelectField
 };

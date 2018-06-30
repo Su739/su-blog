@@ -17,7 +17,6 @@ const MaterialCatalog = (props) => {
   let initialPage = null;
   const catalogList = [];
   const bySuperior = {}; // 按照superior分类，值为该superior的文章数
-  console.log(props);
   // 对文章进行排序，生成目录
   if (articles && articles.length > 0) {
     if (isEditor) {
@@ -134,10 +133,10 @@ const MaterialCatalog = (props) => {
         <NewArticleButton onClick={() => {
             const order = bySuperior[0] ? bySuperior[0] + 1 : 1;
             if (hasNewArticle) { // 这个不需要转到-1， 本身他就在-1
-              addBlockedArticle(-1, 0, order, 0, '未命名', ' ', bookid, true);
+              addBlockedArticle(-1, 0, order, 0, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
               toggleBlockedModal(true);
             } else {
-              toolMethods.addArticle(-1, 0, order, 0, '未命名', ' ', bookid, true);
+              toolMethods.addArticle(-1, 0, order, 0, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
               history.push(`${url}/-1`); // 转到 articleid为 -1
             }
           }}

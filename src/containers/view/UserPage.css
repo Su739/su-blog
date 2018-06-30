@@ -1,0 +1,31 @@
+.user-page {
+  margin: 64px auto 0;
+  max-width: 768px;
+}
+.user-profile {
+  display: flex;
+  margin: 94px auto 10px auto;
+  max-width: 500px;
+  align-items: center;
+}
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 60px;
+}
+.user-name {
+  margin: 0.5em 0;
+}
+.user-property {
+  margin: 0.5em 0;
+}
+.user-profile-detail {
+  flex: 1 1 auto;
+  padding: 0 20px;
+}
+.book-list {
+  display: flex;
+  flex-flow: wrap;
+  justify-content: space-between;
+  margin-top: 10px;
+}

@@ -6,6 +6,8 @@ export const TOGGLE_REGISTER_FORM = 'TOGGLE_REGISTER_FORM';
 export const TOGGLE_BLOCKED_MODAL = 'TOGGLE_BLOCKED_MODAL';
 export const LOADING_EDITOR = 'LOADING_EDITOR';
 export const UPDATE_LATEST_SCROLL = 'UPDATE_LATEST_SCROLL';
+export const TOGGLE_USER_PROFILE_FORM = 'TOGGLE_USER_PROFILE_FORM';
+export const TOGGLE_BOOK_DETAIL_FORM = 'TOGGLE_BOOK_DETAIL_FORM';
 
 function loadingEditor(loading) {
   return {
@@ -49,6 +51,20 @@ function toggleExpandBtn(id) {
   };
 }
 
+function toggleUserProfileForm(display) {
+  return {
+    type: TOGGLE_USER_PROFILE_FORM,
+    displayUserProfileForm: display
+  };
+}
+
+function toggleBookDetailForm(display) {
+  return {
+    type: TOGGLE_BOOK_DETAIL_FORM,
+    displayBookDetailForm: display
+  };
+}
+
 function screenResize(width, height) {
   return {
     type: SCREEN_RESIZE,
@@ -72,5 +88,7 @@ export default {
   toggleRegisterForm,
   toggleBlockedModal,
   loadingEditor,
-  updateLatestScroll
+  updateLatestScroll,
+  toggleUserProfileForm,
+  toggleBookDetailForm
 };

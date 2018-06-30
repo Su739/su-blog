@@ -1,14 +1,19 @@
 .book-pinned {
-  list-style: none;
-  width: 300px;
-  height: 158px;
-  margin: 10px 10px;
-  border: 1px solid #28a745;
+  width: 340px;
+  height: 125px;
+  margin: 10px 20px;
+  border: 1px solid rgba(39, 40, 34, 0.87);
   border-radius: 5px;
   position: relative;
+  background: none;
+  flex: 1 0 auto;
+}
+@media (min-width: 768px) {
+  .book-pinned {
+    flex: 0 0 auto;
+  }
 }
 .book-pinned-actived {
-
 }
 .book-pinned-content {
   position: absolute;
@@ -21,15 +26,16 @@
   word-wrap: break-word;
 }
 .book-pinned-title {
-  width:200px;
   margin-bottom: 4px;
   font-size: 16px;
-  font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
   overflow-wrap: break-word;
   word-wrap: break-word;
   display: block;
+  width: fit-content;
+  color: #00bcd5;
+  text-decoration: none;
 }
 .book-pinned-post-date {
   font-size: 11px;
@@ -50,25 +56,25 @@
   top: 15px;
   right: 12px;
 }
-.book-pinned-dash {
+.book-pinned-toolbar {
   position: absolute;
   right: 0;
   top: 0;
   height: 32px;
   background-color: rgba(108, 117, 125, 0.2);
   opacity: 0;
+  display: flex;
+  align-items: center;
 }
-.book-pinned-dash button {
+.book-pinned-toolbar button {
   display: inline;
   padding: 0;
   background: none;
   border: none;
-  color: white;
-  padding: 6px;
 }
-.book-pinned-dash button:hover {
+.book-pinned-toolbar button:hover {
   color: #007bff;
 }
-.book-pinned:hover .book-pinned-dash{
+.book-pinned:hover .book-pinned-toolbar {
   opacity: 1;
 }

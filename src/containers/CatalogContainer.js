@@ -30,7 +30,6 @@ class CatalogContainer extends React.Component {
     const {
       loadBook, bookid, isEditor
     } = this.props;
-    console.log(this.props);
     // refreshAuthentication();
     // 这个暂时先注释掉，当通过url直接访问这页文章，可能appbar还没有请求user，这样会导致请求2次，所以先注释掉，交给appbar请求
     // loadUser(params.username);
@@ -39,7 +38,6 @@ class CatalogContainer extends React.Component {
     }
   }
   componentDidUpdate(prevProps) {
-    console.log(this.props.bookid);
     if (prevProps.bookid !== this.props.bookid && Number.isInteger(this.props.bookid)) {
       this.props.loadBook(this.props.bookid);
     }
@@ -85,7 +83,7 @@ const mapStateToProps = (state, ownProps) => {
       catalog: { displayCatalog, isFetching, expanded },
       screen: { width: screenWidth }
     },
-    editingData: { articlesById, booksById, hasNewArticle }
+    editingData: { articlesById, booksById, newArticle }
   } = state;
 
   if (isEditor) { // 正常来说，editorPage加载成功，这些数据是有的
@@ -98,7 +96,7 @@ const mapStateToProps = (state, ownProps) => {
       isFetching,
       screenWidth,
       bookid: parseInt(bookid, 10),
-      hasNewArticle,
+      hasNewArticle: newArticle,
       result
     };
   }
@@ -106,8 +104,6 @@ const mapStateToProps = (state, ownProps) => {
   // books[bookid].articles这句可以判断loadArticles是否执行
   const bookArticles = books[bookid] && books[bookid].articles
     ? books[bookid].articles.map(a => articles[a]) : [];
-  console.log(books[bookid]);
-  console.log(bookArticles);
   return {
     book: books[bookid],
     bookArticles,

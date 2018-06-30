@@ -3,6 +3,25 @@ import { CALL_API, Schemas } from '../middleware/api';
 export const ARTICLE_REQUEST = 'ARTICLE_REQUEST';
 export const ARTICLE_SUCCESS = 'ARTICLE_SUCCESS';
 export const ARTICLE_FAILURE = 'ARTICLE_FAILURE';
+export const ADD_ARTICLE_ENTITY = 'ADD_ARTICLE_ENTITY';
+export const UPDATE_ARTICLE_ENTITY = 'UPDATE_ARTICLE_ENTITY';
+export const DELETE_ARTICLE_ENTITY = 'DELETE_ARTICLE_ENTITY';
+
+const addArticleEntity = (bookid, article) => ({
+  type: ADD_ARTICLE_ENTITY,
+  article,
+  bookid
+});
+
+const updateArticleEntity = article => ({
+  type: UPDATE_ARTICLE_ENTITY,
+  article
+});
+
+const deleteArticleEntity = id => ({
+  type: DELETE_ARTICLE_ENTITY,
+  id
+});
 
 const fetchArticle = id => ({
   [CALL_API]: {
@@ -23,4 +42,6 @@ const loadArticle = (id, refresh) => (dispatch, getState) => {
   return dispatch(fetchArticle(id));
 };
 
-export default loadArticle;
+export default {
+  loadArticle, addArticleEntity, updateArticleEntity, deleteArticleEntity
+};

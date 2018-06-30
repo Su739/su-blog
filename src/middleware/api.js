@@ -10,7 +10,6 @@ const API_ROOT = 'https://www.lg739.com/api/'; // 这里有 '/' action中的url�
 
 // Extracts the next page URL from Github API response.
 const getNextPageUrl = (response) => {
-  console.log(response);
   const { link } = response.headers;
   if (!link) {
     return null;

@@ -12,7 +12,7 @@ const {
   }
 } = actions;
 
-const auth = (state = { isLogged: true, loginName: null }, action) => {
+const auth = (state = { isLogged: false, loginName: null }, action) => {
   if (action.type === authTypes.REFRESH_AUTHENTICATION) {
     return {
       ...state,
@@ -23,14 +23,71 @@ const auth = (state = { isLogged: true, loginName: null }, action) => {
   return state;
 };
 
-// Updates an entity cache in response to any action with response.entities.
+const users = (state = {}, action) => {
+  switch (action.type) {
+    case bookTypes.ADD_BOOK_ENTITY:
+      return {
+        ...state,
+        [action.writername]: {
+          ...state[action.writername],
+          books: state[action.writername].books.concat(action.book.id)
+        }
+      };
+    case userTypes.ADD_USER_ENTITY:
+      return { ...state, [action.user.userName]: action.user };
+    case userTypes.UPDATE_USER_ENTITY:
+      return { ...state, [action.user.id]: action.user };
+    case userTypes.DELETE_USER_ENTITY:
+      return omit(state, action.id);
+    default:
+      return state;
+  }
+};
+
+const books = (state = {}, action) => {
+  switch (action.type) {
+    case articleTypes.ADD_ARTICLE_ENTITY:
+      return {
+        ...state,
+        [action.bookid]: {
+          ...state[action.bookid],
+          articles: state[action.bookid].articles.concat(action.article.id)
+        }
+      };
+    case bookTypes.ADD_BOOK_ENTITY:
+      return { ...state, [action.book.id]: action.book };
+    case bookTypes.UPDATE_BOOK_ENTITY:
+      return { ...state, [action.book.id]: action.book };
+    default:
+      return state;
+  }
+};
+
+const articles = (state = {}, action) => {
+  switch (action.type) {
+    case articleTypes.ADD_ARTICLE_ENTITY:
+      return { ...state, [action.article.id]: action.article };
+    case articleTypes.UPDATE_ARTICLE_ENTITY:
+      return { ...state, [action.article.id]: action.article };
+    default:
+      return state;
+  }
+};
+
 const entities = (state = { users: {}, books: {}, articles: {} }, action) => {
+  // Updates an entity cache in response to any action with response.entities.
   if (action.response && action.response.entities) {
     return merge({}, state, action.response.entities);
   }
 
-  return state;
+  return {
+    users: users(state.users, action),
+    articles: articles(state.articles, action),
+    books: books(state.books, action)
+
+  };
 };
+
 
 const articleList = (state = {
   isFetching: false,
@@ -126,8 +183,8 @@ const editingData = (state = {}, action) => {
         booksById: {
           ...state.booksById,
           [action.newArticle.parent]: {
-            ...state.booksById[[action.newArticle.parent]],
-            articles: state.booksById[[action.newArticle.parent]]
+            ...state.booksById[action.newArticle.parent],
+            articles: state.booksById[action.newArticle.parent]
               .articles.concat(action.newArticle.id)
           }
         },
@@ -138,7 +195,7 @@ const editingData = (state = {}, action) => {
       if (state.articlesById[action.id]) {
         return omit({
           ...state,
-          articlesById: omit(state.articlesById, [[action.id]]),
+          articlesById: omit(state.articlesById, [action.id]),
           booksById: {
             ...state.booksById,
             [state.articlesById[action.id].parent]: {
@@ -268,7 +325,10 @@ const navbar = (state = {
 };
 
 const popwindow = (state = {
-  displayLoginForm: false, displayRegisterForm: false, displayBlockedModal: false
+  displayLoginForm: false,
+  displayRegisterForm: false,
+  displayBlockedModal: false,
+  displayUserProfileForm: false
 }, action) => {
   switch (action.type) {
     case uiTypes.TOGGLE_LOGIN_FORM:
@@ -285,6 +345,16 @@ const popwindow = (state = {
       return {
         ...state,
         displayBlockedModal: action.displayBlockedModal
+      };
+    case uiTypes.TOGGLE_USER_PROFILE_FORM:
+      return {
+        ...state,
+        displayUserProfileForm: action.displayUserProfileForm
+      };
+    case uiTypes.TOGGLE_BOOK_DETAIL_FORM:
+      return {
+        ...state,
+        displayBookDetailForm: action.displayBookDetailForm
       };
     default:
       return state;
@@ -355,6 +425,24 @@ const editor = (state = { isFetching: false, loading: true }, action) => {
   }
 };
 
+const userPage = (state = { isFetching: false }, action) => {
+  switch (action.type) {
+    case userTypes.USER_REQUEST:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case userTypes.USER_FAILURE:
+    case userTypes.USER_SUCCESS:
+      return {
+        ...state,
+        isFetching: false
+      };
+    default:
+      return state;
+  }
+};
+
 const ui = combineReducers({
   navbar,
   preview,
@@ -362,7 +450,8 @@ const ui = combineReducers({
   latestScroll,
   catalog,
   popwindow,
-  editor
+  editor,
+  userPage
 });
 // #endregion
 

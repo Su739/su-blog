@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 class UploadField extends React.Component {
   static propTypes = {
-    input: PropTypes.objectOf,
+    input: PropTypes.objectOf(PropTypes.any),
     label: PropTypes.string,
-    meta: PropTypes.objectOf,
+    meta: PropTypes.objectOf(PropTypes.any)
   };
   constructor(props) {
     super(props);
@@ -19,7 +19,7 @@ class UploadField extends React.Component {
 
   render() {
     const {
-      input, label, required, meta: { touched, error },
+      input, label, required, meta: { touched, error }
     } = this.props; // whatever props you send to the component from redux-form Field
     return (
       <div>

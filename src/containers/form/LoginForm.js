@@ -1,17 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Field, reduxForm, propTypes } from 'redux-form';
 import axios from 'axios';
-import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
 import actions from '../../actions';
-import MaterialField from '../../components/reduxFormFieldComponent/MaterialField';
+import { MaterialTextField } from '../../components/reduxFormFieldComponent/MaterialField';
 import AuthFormPane from '../../components/AuthFormPane';
 import rootUrls from '../../utils/rootUrl';
-
-const { MaterialTextField } = MaterialField;
 
 const loginSubmit = ({ username, password }) => axios.post(`${rootUrls}/auth/login`, { username, password }, { withCredentials: true });
 
@@ -20,8 +17,6 @@ const LoginForm = (props) => {
     displayLoginForm, submitting, pristine, isLogged,
     handleSubmit, toggleLoginForm
   } = props;
-
-  console.log(props);
 
   if (displayLoginForm && !isLogged) {
     return (
@@ -45,16 +40,15 @@ const LoginForm = (props) => {
           <div>
             {submitting ? <CircularProgress />
             :
-            <FlatButton
+            <RaisedButton
               backgroundColor="#2196f3"
-              hoverColor="#0473cc"
               style={{ margin: '10px 0', color: '#fff', width: '180px' }}
               type="submit"
               disabled={pristine || submitting}
               onClick={handleSubmit(loginSubmit, props, true)}
             >
             登 录
-            </FlatButton>}
+            </RaisedButton>}
           </div>
         </form>
       </AuthFormPane>
@@ -85,16 +79,18 @@ const mapStateToProps = (state) => {
 
 
 const {
-  toggleLoginForm, toggleRegisterForm, refreshAuthentication
+  toggleLoginForm, toggleRegisterForm, refreshAuthentication, loadUser
 } = actions;
-export default withRouter(reduxForm({
+export default reduxForm({
   form: 'loginForm',
   enableReinitialize: true,
   onSubmitSuccess: (result, dispatch) => {
-    dispatch(refreshAuthentication(true, result.data.name));
+    dispatch(loadUser(result.data.name))
+      .then(() => dispatch(refreshAuthentication(true, result.data.name)));
+    // dispatch(refreshAuthentication(true, result.data.name));
     dispatch(toggleLoginForm(false));
   }
 })(connect(mapStateToProps, {
   toggleLoginForm,
   toggleRegisterForm
-})(LoginForm)));
+})(LoginForm));
