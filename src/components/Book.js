@@ -17,7 +17,8 @@ AddBookButton.propTypes = {
 
 const Book = (props) => {
   const {
-    id, username, name, description, updatedAt, createdAt, handleEditClick, loginName
+    id, username, name, description, updatedAt, createdAt,
+    handleEditClick, handleDeleteClick, loginName
   } = props;
   return (
     <div className="book-pinned">
@@ -44,6 +45,7 @@ const Book = (props) => {
             }}
             tooltip="删除"
             tooltipPosition="top-center"
+            onClick={() => handleDeleteClick(id)}
           >
             <Delete color="rgba(39, 40, 34, 0.87)" />
           </IconButton>
@@ -59,7 +61,8 @@ Book.propTypes = {
   name: PropTypes.string,
   description: PropTypes.string,
   createdAt: PropTypes.string,
-  handleEditClick: PropTypes.func
+  handleEditClick: PropTypes.func,
+  handleDeleteClick: PropTypes.func
 };
 Book.defaultProps = {
   name: 'xxxx',

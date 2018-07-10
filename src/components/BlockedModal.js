@@ -6,51 +6,50 @@ import './BlockedModal.css';
 
 const BlockedModal = (props) => {
   const {
-    okText, refuseText, closeModal, display, onOkClick, onCancelClick, onRefuseClick
+    title, okText, refuseText, closeModal,
+    display, onOkClick, onCancelClick, onRefuseClick
   } = props;
   return (
-    display
-      ?
-        <div>
-          <Modal
-            closeModal={closeModal}
-            title="当前文章还没有保存，请选择以下操作："
-          >
-            <div className="button-group">
-              {okText && onOkClick &&
-              <div>
-                <RaisedButton
-                  label={okText}
-                  primary
-                  fullWidth
-                  onClick={onOkClick}
-                />
-              </div>}
-              {refuseText && onRefuseClick &&
-              <div>
-                <RaisedButton
-                  label={refuseText}
-                  secondary
-                  fullWidth
-                  onClick={onRefuseClick}
-                />
-              </div>}
-              <div>
-                <RaisedButton
-                  label="取消"
-                  fullWidth
-                  onClick={onCancelClick}
-                />
-              </div>
-            </div>
-          </Modal>
+    <div>
+      <Modal
+        closeModal={closeModal}
+        title={title}
+        display={display}
+      >
+        <div className="button-group">
+          {okText && onOkClick &&
+          <div>
+            <RaisedButton
+              label={okText}
+              primary
+              fullWidth
+              onClick={onOkClick}
+            />
+          </div>}
+          {refuseText && onRefuseClick &&
+          <div>
+            <RaisedButton
+              label={refuseText}
+              secondary
+              fullWidth
+              onClick={onRefuseClick}
+            />
+          </div>}
+          <div>
+            <RaisedButton
+              label="取消"
+              fullWidth
+              onClick={onCancelClick}
+            />
+          </div>
         </div>
-      :
-      null
+      </Modal>
+    </div>
   );
 };
 
 BlockedModal.propTypes = {
+  title: PropTypes.string,
   display: PropTypes.bool,
   onOkClick: PropTypes.func,
   onRefuseClick: PropTypes.func,

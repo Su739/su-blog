@@ -1,21 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Field, reduxForm, blur } from 'redux-form';
+import { Field, reduxForm, blur, SubmissionError } from 'redux-form';
 import { connect } from 'react-redux';
 import { Prompt, withRouter } from 'react-router-dom';
 import axios from 'axios';
-import actions from '../actions';
-import { MaterialToogleField } from '../components/reduxFormFieldComponent/MaterialField';
-import EditorField from '../components/EditorField';
-import EditorTitleField from '../components/EditorTitleFied';
-import rootUrl from '../utils/rootUrl';
+import actions from '../../actions';
+import { MaterialToogleField } from '../../components/reduxFormFieldComponent/MaterialField';
+import EditorField from '../../components/EditorField';
+import EditorTitleField from '../../components/EditorTitleFied';
+import rootUrl from '../../utils/rootUrl';
 
 export const submitArticle = ({
   id, title, depth, order, parent, superior, content, ispublic, writerid, abstract
 }) =>
   axios.post(`${rootUrl}/api/articles/article`, {
     id, title, depth, order, parent, superior, content, ispublic, writerid, abstract
-  }, { withCredentials: true });
+  }, { withCredentials: true })
+    .then(
+      res => res,
+      (err) => {
+        throw new SubmissionError({
+          status: err.response.status, message: err.response.data.message
+        });
+      }
+    );
 
 class EditorForm extends React.Component {
   static propTypes = {
@@ -86,18 +94,20 @@ class EditorForm extends React.Component {
 
   render() {
     const {
-      handleSubmit, dirty, requestError, destroyNewArticle, updateArticle, initialValues
+      handleSubmit, dirty, requestError, destroyNewArticle,
+      updateArticle, initialValues
     } = this.props;
     if (requestError) {
       return <div>{requestError.message}</div>;
     }
     return (
-      <form style={{ position: 'relative' }} onSubmit={() => { destroyNewArticle(); handleSubmit(); }}>
+      <form
+        style={{ position: 'relative' }}
+        onSubmit={() => { destroyNewArticle(); handleSubmit(); }}
+      >
         <Prompt
           when={dirty}
-          message={location =>
-            `Are you sure you want to go to ${location.pathname}`
-          }
+          message={() => '当前更改还没有保存，确定要离开？'}
         />
         <div className="editor-float-pane">
           <Field
@@ -185,7 +195,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const {
-  loadArticle, removeArticle, resetRequestError, updateArticle
+  loadArticle, removeArticle, resetRequestError, updateArticle, toggleLoginForm
 } = actions;
 
 export default withRouter(connect(mapStateToProps, {
@@ -200,11 +210,18 @@ export default withRouter(connect(mapStateToProps, {
     const { username, bookid, articleid } = props.match.params;
     // 在这里destroy而不是在提交时的原因，是如果提交时destory
     // dispatch(loadBook(article.parent));
-    dispatch(loadArticle(article.id, true));
+    props.updateMessage(true, '文章提交成功！');
+    dispatch(loadArticle(article.id, true)); // 这个load会造成闪屏，如果不想闪屏就要使用addEntity，而不是重新加载
     dispatch(removeArticle(-1));
     dispatch(updateArticle(article));
     if (articleid === -1) {
       props.history.replace(`/${username}/book/${bookid}/~/edit/${article.id}`);
+    }
+  },
+  onSubmitFail: (errors, dispatch, submitError, props) => {
+    props.updateMessage(true, '登陆认证过期，请重新登录，再提交！');
+    if (errors.status === 401) {
+      dispatch(toggleLoginForm(true));
     }
   }
 })(EditorForm)));

@@ -1,9 +1,9 @@
 {
-  "name": "tract-editor",
+  "name": "tree-book",
   "description": "An online editor via react-markdown",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
+  "homepage": "https://www.lg739.com",
   "dependencies": {
     "@material-ui/core": "^1.0.0",
     "axios": "^0.18.0",
@@ -24,12 +24,12 @@
     "redux-devtools": "^3.4.1",
     "redux-devtools-dock-monitor": "^1.1.3",
     "redux-devtools-log-monitor": "^1.4.0",
-    "redux-form": "^7.3.0",
+    "redux-form": "^7.4.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HOST='blog.lg739.com' react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

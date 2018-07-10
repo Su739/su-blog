@@ -44,13 +44,14 @@ const Logged = ({
   >
     <MenuItem containerElement={<Link to={`/${loginName}`} />} leftIcon={<Avatar src={`${rootUrl}/avatars/${avatarUrl}`} />} primaryText={loginNick} />
     <MenuItem
-      onClick={() => axios
-        .get(logoutUrl, { withCredentials: true })
-          .then(() => refreshAuthentication(false, null))
-        }
+      onClick={(e) => {
+        e.preventDefault();
+        axios
+          .get(logoutUrl, { withCredentials: true })
+            .then(() => refreshAuthentication(false, null));
+        }}
       leftIcon={<Power />}
       primaryText="退出登录"
-      variant="button"
     />
   </IconMenu>
 );
@@ -64,7 +65,7 @@ Logged.propTypes = {
 
 // bar
 const MaterialAppBar = ({
-  ownerName, loginName, screenWidth, loginUser, blogOwner, isFetching,
+  ownerName, loginName, screenWidth, loginUser, blogOwner, isFetching, displayLeftIcon,
   handleToggleCatalog, toggleLoginForm, refreshAuthentication
 }) => {
   if (isFetching) {
@@ -93,10 +94,10 @@ const MaterialAppBar = ({
             <span className="bar-title"><Link to="/">TreeBook</Link></span>
         }
         titleStyle={{ display: 'flex', alignItems: 'center' }}
-        showMenuIconButton={screenWidth < 768}
+        showMenuIconButton={screenWidth < 768 && displayLeftIcon}
         onLeftIconButtonClick={() => handleToggleCatalog(true)}
         iconElementRight={
-          loginName
+          loginUser
           ?
             <Logged
               loginNick={loginUser.UserProfile.nickName}
@@ -119,7 +120,8 @@ MaterialAppBar.propTypes = {
   blogOwner: PropTypes.objectOf(PropTypes.any),
   handleToggleCatalog: PropTypes.func,
   toggleLoginForm: PropTypes.func,
-  refreshAuthentication: PropTypes.func
+  refreshAuthentication: PropTypes.func,
+  displayLeftIcon: PropTypes.bool
 };
 
 export default MaterialAppBar;

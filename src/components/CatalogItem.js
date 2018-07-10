@@ -130,7 +130,7 @@ class CatalogItem extends React.Component {
           </button>
         :
           <div style={{ width: '36px' }} />}
-        <div className="catalog-item-link" onMouseDown={() => handleToggleCatalog(false)} role="presentation">
+        <div className="catalog-item-link" onClick={() => handleToggleCatalog(false)} role="presentation">
           <NavLink style={superior !== 0 ? { color: '#999' } : { color: '#000' }} activeStyle={{ color: '#007bff' }} to={url}>
             {title}
           </NavLink>

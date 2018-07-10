@@ -6,9 +6,12 @@ import cloneDeep from 'lodash/cloneDeep';
 import union from 'lodash/union';
 import actions from '../actions';
 
+/** 注意，这里面的isFetching仅代表数据正在加载，不能作为组件的加载状态 */
+
 const {
   types: {
-    uiTypes, articleTypes, bookTypes, authTypes, userTypes, editingDataTypes, articleListTypes
+    uiTypes, articleTypes, bookTypes, authTypes,
+    userTypes, editingDataTypes, articleListTypes, deletingDataTypes
   }
 } = actions;
 
@@ -39,6 +42,14 @@ const users = (state = {}, action) => {
       return { ...state, [action.user.id]: action.user };
     case userTypes.DELETE_USER_ENTITY:
       return omit(state, action.id);
+    case bookTypes.DELETE_BOOK_ENTITY:
+      return {
+        ...state,
+        [action.writer]: {
+          ...state[action.writer],
+          Books: state[action.writer].Books.filter(b => b !== parseInt(action.id, 10))
+        }
+      };
     default:
       return state;
   }
@@ -58,6 +69,8 @@ const books = (state = {}, action) => {
       return { ...state, [action.book.id]: action.book };
     case bookTypes.UPDATE_BOOK_ENTITY:
       return { ...state, [action.book.id]: action.book };
+    case bookTypes.DELETE_BOOK_ENTITY:
+      return omit(state, [action.id]);
     default:
       return state;
   }
@@ -69,6 +82,8 @@ const articles = (state = {}, action) => {
       return { ...state, [action.article.id]: action.article };
     case articleTypes.UPDATE_ARTICLE_ENTITY:
       return { ...state, [action.article.id]: action.article };
+    case bookTypes.DELETE_BOOK_ENTITY:
+      return omit(state, Object.keys(state).map(a => a === action.id));
     default:
       return state;
   }
@@ -123,56 +138,50 @@ const pagination = combineReducers({
   articleList
 });
 
-/**
- * store some editing data,the articles data use array
- * @param {object} state
- * @param {array} action.articles
- */
-/*
-const editingData = (state = {}, action) => {
+// Updates an result by normalizd response.result to any action with response.result.
+const result = (state = {}, action) => {
+  if (action.response && action.response.result) {
+    return { ...state, ...action.response.result };
+  }
+
+  return state;
+};
+
+// store the data will delete
+const deletingData = (state = { deletingArticles: [], deletingBooks: [] }, action) => {
   switch (action.type) {
-    case editingDataTypes.INITIAL_EDITING_DATA:
-      return cloneDeep({ booksById: action.booksById, articles: sortCatalog(action.articlesById) });
-    case editingDataTypes.ADD_ARTICLE:
-      return {
-        articles: sortCatalog(state.articles.concat(action.newArticle)),
-        booksById: {
-          ...state.booksById,
-          [action.newArticle.parent]: {
-            ...state.booksById[[action.newArticle.parent]],
-            articles: state.booksById[[action.newArticle.parent]]
-              .articles.concat(action.newArticle.id)
-          }
-        }
-      };
-    case editingDataTypes.REMOVE_ARTICLE:
+    case deletingDataTypes.ADD_DELETING_ARTICLES:
+      return { ...state, deletingArticles: state.deletingArticles.concat(action.ids) };
+    case deletingDataTypes.ADD_DELETING_BOOKS:
+      return { ...state, deletingBooks: state.deletingBooks.concat(action.ids) };
+    case deletingDataTypes.REMOVE_DELETING_ARTICLE:
       return {
         ...state,
-        articlesById: state.articles.filter(a => a.id !== action.id),
-        booksById: {
-          ...state.booksById,
-          [action.newArticle.parent]: {
-            ...state.booksById[[action.newArticle.parent]],
-            articles: state.booksById[[action.newArticle.parent]]
-              .articles.slice(0, -1)
-          }
-        }
+        deletingArticles: state.deletingArticles.filter(a => a !== parseInt(action.id, 10))
       };
-    case editingDataTypes.DESTROY_BLOCKED_ARTICLE:
-      return omit(state, ['blockedArticle']);
-    case editingDataTypes.DESTROY_EDITING_DATA:
-      return {};
+    case deletingDataTypes.REMOVE_DELETING_BOOK:
+      return {
+        ...state,
+        deletingBooks: state.deletingBooks.filter(a => a !== parseInt(action.id, 10))
+      };
+    case deletingDataTypes.DESTROY_DELETING_ARTICLES:
+      return { ...state, deletingArticles: [] };
+    case deletingDataTypes.DESTROY_DELETING_BOOKS:
+      return { ...state, deletingBooks: [] };
     default:
       return state;
   }
 };
-*/
 
 // store some editing data
 const editingData = (state = {}, action) => {
   switch (action.type) {
     case editingDataTypes.INITIAL_EDITING_DATA:
-      return cloneDeep({ booksById: action.booksById, articlesById: action.articlesById });
+      return cloneDeep({
+        booksById: action.booksById,
+        articlesById: action.articlesById,
+        usersById: action.usersById
+      });
     case editingDataTypes.ADD_ARTICLE:
       return {
         ...state,
@@ -263,19 +272,10 @@ const editingData = (state = {}, action) => {
   }
 };
 
-// Updates an result by normalizd response.result to any action with response.result.
-const result = (state = {}, action) => {
-  if (action.response && action.response.result) {
-    return { ...state, ...action.response.result };
-  }
-
-  return state;
-};
-
 // #region ui region
 
 // eslint-disable-next-line no-undef
-const screen = (state = { width: window.innerWidth, height: window.innerHeight }, action) => {
+const screenSize = (state = { width: window.innerWidth, height: window.innerHeight }, action) => {
   switch (action.type) {
     case uiTypes.SCREEN_RESIZE:
       return { width: action.screenWidth, height: action.screenHeight };
@@ -285,10 +285,10 @@ const screen = (state = { width: window.innerWidth, height: window.innerHeight }
 };
 
 // eslint-disable-next-line no-undef
-const latestScroll = (state = document.documentElement.scrollTop, action) => {
+const homePage = (state = { curScroll: document.documentElement.scrollTop }, action) => {
   switch (action.type) {
     case uiTypes.UPDATE_LATEST_SCROLL:
-      return action.latestScroll;
+      return { curScroll: action.latestScroll };
     default:
       return state;
   }
@@ -324,12 +324,7 @@ const navbar = (state = {
   }
 };
 
-const popwindow = (state = {
-  displayLoginForm: false,
-  displayRegisterForm: false,
-  displayBlockedModal: false,
-  displayUserProfileForm: false
-}, action) => {
+const popwindow = (state = { displayLoginForm: false, displayRegisterForm: false }, action) => {
   switch (action.type) {
     case uiTypes.TOGGLE_LOGIN_FORM:
       return {
@@ -340,21 +335,6 @@ const popwindow = (state = {
       return {
         ...state,
         displayRegisterForm: action.displayRegisterForm
-      };
-    case uiTypes.TOGGLE_BLOCKED_MODAL:
-      return {
-        ...state,
-        displayBlockedModal: action.displayBlockedModal
-      };
-    case uiTypes.TOGGLE_USER_PROFILE_FORM:
-      return {
-        ...state,
-        displayUserProfileForm: action.displayUserProfileForm
-      };
-    case uiTypes.TOGGLE_BOOK_DETAIL_FORM:
-      return {
-        ...state,
-        displayBookDetailForm: action.displayBookDetailForm
       };
     default:
       return state;
@@ -384,7 +364,14 @@ const catalog = (state = { displayCatalog: false, isFetching: false, expanded: {
   }
 };
 
-const preview = (state = { isFetching: false }, action) => {
+const app = combineReducers({
+  catalog,
+  navbar,
+  screenSize,
+  popwindow
+});
+
+const articlePage = (state = { preview: { isFetching: false } }, action) => {
   switch (action.type) {
     case articleTypes.ARTICLE_REQUEST:
       return {
@@ -402,8 +389,15 @@ const preview = (state = { isFetching: false }, action) => {
   }
 };
 
-const editor = (state = { isFetching: false, loading: true }, action) => {
+const editorPage = (state = {
+  isFetching: false, loading: true, displayBlockedModal: false
+}, action) => {
   switch (action.type) {
+    case uiTypes.TOGGLE_BLOCKED_MODAL:
+      return {
+        ...state,
+        displayBlockedModal: action.displayBlockedModal
+      };
     case uiTypes.LOADING_EDITOR:
       return {
         ...state,
@@ -425,7 +419,11 @@ const editor = (state = { isFetching: false, loading: true }, action) => {
   }
 };
 
-const userPage = (state = { isFetching: false }, action) => {
+const userPage = (state = {
+  isFetching: false,
+  displayUserProfileForm: false,
+  displayBookDetailForm: false
+}, action) => {
   switch (action.type) {
     case userTypes.USER_REQUEST:
       return {
@@ -438,19 +436,27 @@ const userPage = (state = { isFetching: false }, action) => {
         ...state,
         isFetching: false
       };
+    case uiTypes.TOGGLE_USER_PROFILE_FORM:
+      return {
+        ...state,
+        displayUserProfileForm: action.displayUserProfileForm
+      };
+    case uiTypes.TOGGLE_BOOK_DETAIL_FORM:
+      return {
+        ...state,
+        displayBookDetailForm: action.displayBookDetailForm
+      };
     default:
       return state;
   }
 };
 
 const ui = combineReducers({
+  homePage,
   navbar,
-  preview,
-  screen,
-  latestScroll,
-  catalog,
-  popwindow,
-  editor,
+  articlePage,
+  app,
+  editorPage,
   userPage
 });
 // #endregion
@@ -469,14 +475,19 @@ const requestError = (state = null, action) => {
 };
 
 const rootReducer = combineReducers({
+  // data
   auth,
   entities,
   pagination,
-  result,
-  ui,
-  requestError,
   form: formReducer,
-  editingData
+  result,
+  // ui
+  ui,
+  // state
+  requestError,
+  // stateByPage,
+  editingData,
+  deletingData
 });
 
 export default rootReducer;

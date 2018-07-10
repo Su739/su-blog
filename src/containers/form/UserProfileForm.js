@@ -46,7 +46,7 @@ UserProfileForm.propTypes = {
 
 const mapStateToProps = (state) => {
   const {
-    ui: { popwindow: { displayUserProfileForm } }
+    ui: { userPage: { displayUserProfileForm } }
   } = state;
 
   return {

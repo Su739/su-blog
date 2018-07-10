@@ -1,5 +1,3 @@
-也许应该按页分离状态
-
 ```json
   "entities":{
     "usersById": {},
@@ -7,7 +5,7 @@
     "articlesById": {}
   },
   "userPage": {
-    "userProfile": {},
+    "user": {},
     "books": [],
     "ui": {"component1": {}},
     "onEditing": {

@@ -7,11 +7,11 @@ import MaterialCatalog from '../components/MaterialCatalog';
 class CatalogContainer extends React.Component {
   static propTypes = {
     history: PropTypes.objectOf(PropTypes.any),
+    location: PropTypes.objectOf(PropTypes.any),
     isEditor: PropTypes.bool,
     expanded: PropTypes.objectOf(PropTypes.bool),
     toggleExpandBtn: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
-    refreshAuthentication: PropTypes.func.isRequired,
     toggleCatalog: PropTypes.func.isRequired,
     toggleBlockedModal: PropTypes.func,
     addArticle: PropTypes.func,
@@ -45,7 +45,7 @@ class CatalogContainer extends React.Component {
   render() {
     const {
       bookArticles, isFetching, displayCatalog, screenWidth,
-      expanded, url, isEditor, bookid, history,
+      expanded, url, isEditor, bookid, history, location,
       toggleCatalog, toggleExpandBtn, toggleBlockedModal,
       destroyNewArticle, hasNewArticle, addArticle, addBlockedArticle
     } = this.props;
@@ -67,6 +67,7 @@ class CatalogContainer extends React.Component {
         addBlockedArticle={addBlockedArticle}
         addArticle={addArticle}
         history={history}
+        location={location}
       />
     );
   }
@@ -80,8 +81,10 @@ const mapStateToProps = (state, ownProps) => {
     },
     result,
     ui: {
-      catalog: { displayCatalog, isFetching, expanded },
-      screen: { width: screenWidth }
+      app: {
+        catalog: { displayCatalog, isFetching, expanded },
+        screenSize: { width: screenWidth }
+      }
     },
     editingData: { articlesById, booksById, newArticle }
   } = state;

@@ -6,6 +6,7 @@
   display: flex;
   margin: 94px auto 10px auto;
   max-width: 500px;
+  width: fit-content;
   align-items: center;
 }
 .user-avatar {

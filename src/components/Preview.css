@@ -1,17 +1,57 @@
-.preview-container {
-  padding: 5px 15px;
-}
 .title {
   text-align: center;
   width: 60%;
-  border-bottom: 2px solid grey;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.5);
   margin: 0.67em auto 1em auto;
 }
 .article-pane {
-  padding-top: 64px;
+  margin: 0 10px;
+  width: 100%;
+  overflow: hidden;
 }
 @media (min-width: 768px) {
   .article-pane {
-    margin: 0 0 0 19%;
+    margin: 0 20px 0 25%;
   }
+}
+@media (min-width: 1440px) {
+  .article-pane {
+    margin: 0 0 0 350px;
+  }
+}
+.result li {
+  line-height: 1.5;
+}
+.result p {
+  line-height: 1.2;
+}
+
+code {
+  color: rgb(253, 82, 82);
+  background: rgba(235, 234, 234, 0.5);
+  padding: 0.1em 0.5em;
+  margin: 0 0.2em;
+  border-radius: 0.3em;
+}
+
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 2em;
+  border-left: 0.5em #eee solid;
+}
+
+tr {
+  border-top: 1px solid #c6cbd1;
+  background: #fff;
+}
+
+th,
+td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+table tr:nth-child(2n) {
+  background: #f6f8fa;
 }

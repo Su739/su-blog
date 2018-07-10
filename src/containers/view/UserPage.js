@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import BookDetailForm from '../form/BookDetailForm';
 import Book, { AddBookButton } from '../../components/Book';
+import Modal from '../../components/Modal';
 import actions from '../../actions';
 import Error404 from '../../components/Error404';
 import rootUrl from '../../utils/rootUrl';
 import './UserPage.css';
+
+const deleteBookById = id =>
+  axios.delete(`${rootUrl}/api/books/${id}`, { withCredentials: true });
 
 const UserProfileProperty = ({ name, value }) => {
   if (value) {
@@ -33,6 +38,11 @@ class UserPage extends React.Component {
     userBooks: PropTypes.arrayOf(PropTypes.object),
     loadUser: PropTypes.func,
     toggleBookDetailForm: PropTypes.func,
+    addDeletingBooks: PropTypes.func,
+    destroyDeletingBooks: PropTypes.func,
+    deleteBookEntity: PropTypes.func,
+    refreshAuthentication: PropTypes.func,
+    deletingBooks: PropTypes.arrayOf(PropTypes.number),
     username: PropTypes.string,
     user: PropTypes.objectOf(PropTypes.any),
     loginName: PropTypes.string
@@ -41,12 +51,19 @@ class UserPage extends React.Component {
     super(props);
     this.state = {
       tabValue: 'book',
-      bookOnEditting: null
+      bookOnEditting: null,
+      deleteBookWarning: false
     };
     this.handleTabChange = this.handleTabChange.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
+    this.cancelDelete = this.cancelDelete.bind(this);
+    this.executeDelete = this.executeDelete.bind(this);
   }
   componentDidMount() {
+    // if (process.env.NODE_ENV === 'production') {
+    this.props.refreshAuthentication();
+    // }
     const { loadUser, username } = this.props;
     loadUser(username);
   }
@@ -70,9 +87,25 @@ class UserPage extends React.Component {
     });
   }
 
+  handleDeleteClick(id) {
+    this.props.addDeletingBooks(id);
+    this.setState({ deleteBookWarning: true });
+  }
+
+  cancelDelete() {
+    this.props.destroyDeletingBooks();
+    this.setState({ deleteBookWarning: false });
+  }
+
+  executeDelete() {
+    const { deletingBooks } = this.props;
+    return deleteBookById(deletingBooks[0]);
+  }
+
   render() {
     const {
-      loginName, user, isFetching, userBooks, username, requestError, toggleBookDetailForm
+      loginName, user, isFetching, userBooks, username, requestError, toggleBookDetailForm,
+      deleteBookEntity
     } = this.props;
     const bookList = userBooks ? userBooks.map(b =>
       (<Book
@@ -83,6 +116,7 @@ class UserPage extends React.Component {
         description={b.description}
         createdAt={b.createdAt}
         handleEditClick={this.handleEditClick}
+        handleDeleteClick={this.handleDeleteClick}
         loginName={loginName}
       />)) : null;
     if (requestError) {
@@ -93,6 +127,17 @@ class UserPage extends React.Component {
     }
     return (
       <div>
+        <Modal
+          maskClose
+          closeCB={this.cancelDelete}
+          display={this.state.deleteBookWarning}
+          tips="确定要删除这本书么？"
+          okText="确定"
+          cancelText="取消"
+          onOkClick={this.executeDelete}
+          onCancelClick={this.cancelDelete}
+          resolvedCB={res => deleteBookEntity(res.data.id, res.data.writer)}
+        />
         <BookDetailForm bookid={this.state.bookOnEditting} />
         <div className="user-page">
           <div className="user-profile">
@@ -132,7 +177,8 @@ const mapStateToProps = (state, ownProps) => {
   const {
     auth: { loginName },
     entities: { books, users },
-    ui: { userPage: { isFetching } },
+    deletingData: { deletingBooks },
+    ui: { userPage: { isFetching, displayBookDetailForm } },
     requestError
   } = state;
 
@@ -145,10 +191,22 @@ const mapStateToProps = (state, ownProps) => {
     username,
     userBooks,
     requestError,
-    isFetching
+    isFetching,
+    displayBookDetailForm,
+    deletingBooks
   };
 };
 
-const { loadUser, toggleBookDetailForm } = actions;
+const {
+  loadUser, toggleBookDetailForm, addDeletingBooks,
+  destroyDeletingBooks, deleteBookEntity, refreshAuthentication
+} = actions;
 
-export default connect(mapStateToProps, { loadUser, toggleBookDetailForm })(UserPage);
+export default connect(mapStateToProps, {
+  loadUser,
+  toggleBookDetailForm,
+  addDeletingBooks,
+  destroyDeletingBooks,
+  deleteBookEntity,
+  refreshAuthentication
+})(UserPage);

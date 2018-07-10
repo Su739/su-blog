@@ -9,10 +9,11 @@ import Help from 'material-ui/svg-icons/action/help';
 import Image from 'material-ui/svg-icons/image/image';
 import Save from 'material-ui/svg-icons/content/save';
 import CircularProgress from 'material-ui/CircularProgress';
+import Snackbar from 'material-ui/Snackbar';
 import BlockedArticleDialog from '../BlockedArticleDialog';
 import actions from '../../actions';
 import CatalogContainer from '../CatalogContainer';
-import EditorForm from '../EditorForm';
+import EditorForm from '../form/EditorForm';
 import EditorPreviewer from '../../components/EditorPreviewer';
 import Error404 from '../../components/Error404';
 import EditorLoadingPage from '../../components/EditorLoadingPage';
@@ -40,9 +41,17 @@ ToolButton.propTypes = {
 };
 
 class EditorPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      snackbarMessage: ''
+    };
+    this.updateMessage = this.updateMessage.bind(this);
+  }
   componentDidMount() {
     const {
-      loadBook, loadingEditor, bookid, initialEditingData, books, articles, refreshAuthentication
+      loadBook, loadingEditor, bookid, initialEditingData, books, articles
     } = this.props;
     // 当通过输入栏手动输入url或者点击写文章按钮时，url中不含有articleid参数，而且很可能这时候也没有加载book，
     // 导致暂时无法获得书中superior为-1的项(readme文章，现在还没有好办法，就用了这个办法)
@@ -103,6 +112,14 @@ class EditorPage extends React.Component {
     // 这个很重要，不然下次在加载数据完成之前，没有他阻塞，就会报错(数据不存在)
     this.props.loadingEditor(true);
   }
+
+  updateMessage(open, message) {
+    this.setState({
+      open,
+      snackbarMessage: message
+    });
+  }
+
   render() {
     const {
       submitArticle, match, isLogged, isFetching, formValues, requestError, loading, history
@@ -116,6 +133,12 @@ class EditorPage extends React.Component {
     return (
       isLogged ?
         <div className="editor-page">
+          <Snackbar
+            open={!!this.state.open}
+            message={this.state.snackbarMessage}
+            autoHideDuration={10000}
+            onRequestClose={() => this.setState({ open: false, snackbarMessage: '' })}
+          />
           <BlockedArticleDialog />
           <CatalogContainer
               // 当将history传入进去后，之前的navlink active就会起作用，因为每次点击之后history会变，座椅catalog会re-render
@@ -137,8 +160,15 @@ class EditorPage extends React.Component {
               }
             <div className="editor-container">
               <Switch>
-                <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorForm} />
-                <Route exact path="/:username/book/:bookid/~/edit" component={EditorForm} />
+                <Route
+                  path="/:username/book/:bookid/~/edit/:articleid"
+                  render={() => <EditorForm updateMessage={this.updateMessage} />}
+                />
+                <Route
+                  exact
+                  path="/:username/book/:bookid/~/edit"
+                  render={() => <EditorForm updateMessage={this.updateMessage} />}
+                />
                 <Route path="/" component={Error404} />
               </Switch>
             </div>
@@ -156,7 +186,7 @@ class EditorPage extends React.Component {
                   </ToolButton>
                 </div>
                 <div className="tool-box-bottom">
-                  <ToolButton onClick={submitArticle} tooltip="保存提交">
+                  <ToolButton onClick={() => { this.updateMessage(true, '文章提交中...'); submitArticle(); }} tooltip="保存提交">
                     <Save color="#007bff" />
                   </ToolButton>
                 </div>
@@ -203,7 +233,7 @@ const mapStateToProps = (state, ownProps) => {
   const {
     entities: { books, articles },
     auth: { loginName },
-    ui: { editor: { isFetching, loading }, popwindow: { displayBlockedModal } },
+    ui: { editorPage: { isFetching, loading, displayBlockedModal } },
     form,
     requestError,
     editingData: { hasNewArticle }
@@ -237,7 +267,8 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const {
-  loadBook, loadArticle, loadingEditor, initialEditingData, destroyDeitingData, resetRequestError, refreshAuthentication
+  loadBook, loadArticle, loadingEditor, initialEditingData,
+  destroyDeitingData, resetRequestError, refreshAuthentication
 } = actions;
 const submitArticle = () => submit('editorForm');
 
@@ -248,5 +279,6 @@ export default withRouter(connect(mapStateToProps, {
   loadingEditor,
   initialEditingData,
   resetRequestError,
-  destroyDeitingData
+  destroyDeitingData,
+  refreshAuthentication
 })(EditorPage));

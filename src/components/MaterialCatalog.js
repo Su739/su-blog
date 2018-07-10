@@ -6,6 +6,43 @@ import CatalogItem from './CatalogItem';
 import sortCatalog from './utils/sortCatalog';
 import './Catalog.css';
 
+const editorStyle = (isEditor, width) => {
+  if (isEditor) {
+    if (width > 768) {
+      return {
+        height: 'calc(100% - 64px)',
+        top: '64px',
+        left: '0',
+        overflowX: 'hidden',
+        transform: 'none',
+        maxWidth: '300px',
+        boxShadow: '3px 0px 8px rgba(0, 0, 0, 0.16), inset 0px 2px 0px rgba(0, 0, 0, 0.12)',
+        backgroundColor: '#fff'
+      };
+    }
+  }
+
+  if (width > 768) {
+    return {
+      height: 'calc(100% - 64px)',
+      top: '64px',
+      left: 'none',
+      overflowX: 'hidden',
+      transform: 'none',
+      maxWidth: '300px',
+      boxShadow: '3px 0px 8px rgba(0, 0, 0, 0.16), inset 0px 2px 0px rgba(0, 0, 0, 0.12)',
+      backgroundColor: '#fff'
+    };
+  }
+
+  return {
+    overflowX: 'hidden',
+    maxWidth: '350px',
+    left: 'none',
+    backgroundColor: '#fff'
+  };
+};
+
 const MaterialCatalog = (props) => {
   const {
     isEditor, isFetching,
@@ -117,12 +154,12 @@ const MaterialCatalog = (props) => {
       docked={screenWidth > 768}
       width={screenWidth > 768 ? '18%' : '60%'}
       open={screenWidth > 768 || displayCatalog}
-      onRequestChange={() => handleToggleCatalog(false)}
-      containerStyle={screenWidth > 768
-        ? {
-            height: 'calc(100% - 64px)', top: '64px', overflowX: 'hidden', transform: 'none', maxWidth: '300px'
-          }
-        : { overflowX: 'hidden', maxWidth: '280px' }}
+      onRequestChange={() => {
+        if (screenWidth < 768) {
+          handleToggleCatalog(false);
+        }
+      }}
+      containerStyle={editorStyle(isEditor, screenWidth)}
     >
       {isFetching && <div>loading...</div>}
       {initialPage}

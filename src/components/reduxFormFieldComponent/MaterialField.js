@@ -32,13 +32,14 @@ MaterialTextField.propTypes = {
 
 export const MaterialToogleField = (props) => {
   const {
-    input, label, ...custom
+    input, label, meta: { touched, error }, ...custom
   } = props;
   return (
     <Toggle
       label={label}
       labelPosition="right"
       toggled={input.value || false}
+      errorText={touched && error}
       onToggle={input.onChange}
       {...input}
       {...custom}
@@ -48,6 +49,10 @@ export const MaterialToogleField = (props) => {
 
 MaterialToogleField.propTypes = {
   input: PropTypes.objectOf(PropTypes.any),
+  meta: PropTypes.shape({
+    touched: PropTypes.bool,
+    error: PropTypes.string
+  }),
   label: PropTypes.string
 };
 

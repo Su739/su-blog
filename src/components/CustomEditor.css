@@ -78,6 +78,14 @@ pre {
   border: 1px solid #ccc;
 }
 
+code {
+  color: rgb(253, 82, 82);
+  background: rgba(206, 206, 206, 0.8);
+  padding: 0.05em 0.2em;
+  margin: 0 0.5em;
+  font-size: 0.9em;
+}
+
 blockquote {
   color: #666;
   margin: 0;

@@ -5,7 +5,7 @@ export const BOOK_SUCCESS = 'BOOK_SUCCESS';
 export const BOOK_FAILURE = 'BOOK_FAILURE';
 export const ADD_BOOK_ENTITY = 'ADD_ARTICLE_ENTITY';
 export const UPDATE_BOOK_ENTITY = 'UPDATE_ARTICLE_ENTITY';
-export const DELETE_BOOK_ENTITY = 'DELETE-BOOK_ENTITY';
+export const DELETE_BOOK_ENTITY = 'DELETE_BOOK_ENTITY';
 
 const addBookEntity = (writername, book) => ({
   type: ADD_BOOK_ENTITY,
@@ -18,9 +18,10 @@ const updateBookEntity = book => ({
   book
 });
 
-const deleteBookEntity = id => ({
+const deleteBookEntity = (id, writer) => ({
   type: DELETE_BOOK_ENTITY,
-  id
+  id,
+  writer
 });
 
 const fetchBook = bookid => ({
@@ -29,7 +30,7 @@ const fetchBook = bookid => ({
     types: [BOOK_REQUEST, BOOK_SUCCESS, BOOK_FAILURE],
     endpoint: `books/${bookid}`,
     apischema: Schemas.BOOK,
-    result: 'book'
+    method: 'get'
   }
 });
 

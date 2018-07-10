@@ -25,8 +25,16 @@ const getNextPageUrl = (response) => {
 
 // Fetches an API response and normalizes the result JSON according to schema.
 // This makes every API response have the same shape, regardless of how nested it was.
-const callApi = (endpoint, apischema, result) => {
+const callApi = (endpoint, apischema, method = 'get') => {
   const fullUrl = endpoint.indexOf(API_ROOT) === -1 ? API_ROOT + endpoint : endpoint;
+
+  if (method === 'delete') {
+    return axios.delete(fullUrl, { withCredentials: true })
+      .then(
+        response => response.data,
+        error => Promise.reject(error)
+      );
+  }
 
   return axios.get(fullUrl, { withCredentials: true })
     .then(
@@ -62,7 +70,7 @@ export default store => next => (action) => {
   }
 
   const {
-    types, apischema, endpoint, result
+    types, apischema, endpoint, method
   } = callAPI;
 
   if (typeof endpoint !== 'string') {
@@ -77,7 +85,7 @@ export default store => next => (action) => {
   if (!types.every(type => typeof type === 'string')) {
     throw new Error('types内应为string类型');
   }
-  if (typeof result !== 'string') {
+  if (typeof method !== 'string') {
     throw new Error('结果属性的名称result应该是一个字符串');
   }
 
@@ -92,7 +100,7 @@ export default store => next => (action) => {
   const [requestType, successType, failureType] = types;
   next(actionWith({ type: requestType }));
 
-  return callApi(endpoint, apischema, result).then(
+  return callApi(endpoint, apischema, method).then(
     response =>
       next(actionWith({
         response,

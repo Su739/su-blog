@@ -75,7 +75,11 @@ class CodeMirrorEditor extends React.Component {
   }
 
   componentWillUnmount() {
-    this.editor.off('change', this.handleChange);
+    if (this.editor && typeof this.editor.off === 'function') {
+      this.editor.off('change', this.handleChange);
+    } else {
+      console.log('editor unmount fail'); // eslint-disable-line
+    }
   }
 
   handleChange() {

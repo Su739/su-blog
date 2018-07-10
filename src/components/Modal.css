@@ -14,11 +14,11 @@
   vertical-align: middle;
 }
 .modal-container {
-  width: 400px;
   margin: 0 auto;
   background-color: #fff;
-  padding: 8px 0;
+  padding: 8px 32px;
   border-radius: 8px;
+  box-sizing: border-box;
 }
 .modal-title {
   width: 100%;
@@ -35,6 +35,12 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 0;
+}
+.modal-btn-group {
+  text-align: right;
+}
+.modal-content {
+  min-height: 3em;
 }
 .login-form {
   width: 100%;

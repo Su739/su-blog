@@ -63,11 +63,12 @@ function cancelArticleChange(article) {
   return { type: CANCEL_ARTICLE_CHANGE, article };
 }
 
-function initialEditingData(articles, books) {
+function initialEditingData(articles, books, users) {
   return {
     type: INITIAL_EDITING_DATA,
     booksById: books,
-    articlesById: articles
+    articlesById: articles,
+    usersById: users
   };
 }
 

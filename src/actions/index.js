@@ -5,6 +5,7 @@ import loadArticleList, * as articleListTypes from './loadArticleList';
 import uiActions, * as uiTypes from './ui';
 import editingDataActions, * as editingDataTypes from './editingData';
 import refreshAuthentication, * as authTypes from './refreshAuthentication';
+import deletingDataActions, * as deletingDataTypes from './deletingData';
 
 const RESET_REQUEST_ERROR = 'RESET_REQUEST_ERROR';
 // Resets the currently visible error message.
@@ -21,7 +22,8 @@ export default {
     uiTypes,
     editingDataTypes,
     authTypes,
-    articleListTypes
+    articleListTypes,
+    deletingDataTypes
   },
   ...articleActions,
   ...bookActions,
@@ -30,5 +32,6 @@ export default {
   refreshAuthentication,
   loadArticleList,
   ...uiActions,
-  ...editingDataActions
+  ...editingDataActions,
+  ...deletingDataActions
 };

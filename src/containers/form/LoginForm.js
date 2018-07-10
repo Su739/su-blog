@@ -1,24 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Field, reduxForm, propTypes } from 'redux-form';
+import { Field, reduxForm, propTypes, SubmissionError } from 'redux-form';
 import axios from 'axios';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
+import { required, validUserName, validPassword } from './utils/validations';
 import actions from '../../actions';
 import { MaterialTextField } from '../../components/reduxFormFieldComponent/MaterialField';
 import AuthFormPane from '../../components/AuthFormPane';
 import rootUrls from '../../utils/rootUrl';
 
-const loginSubmit = ({ username, password }) => axios.post(`${rootUrls}/auth/login`, { username, password }, { withCredentials: true });
+const loginSubmit = ({ username, password }) => axios.post(`${rootUrls}/auth/login`, { username, password }, { withCredentials: true })
+  .then(
+    res => res,
+    (err) => {
+      throw new SubmissionError({ [err.response.data.field]: err.response.data.message });
+    }
+  );
+
+const userNameValidate = validUserName();
+const passwordValidate = validPassword();
 
 const LoginForm = (props) => {
   const {
-    displayLoginForm, submitting, pristine, isLogged,
+    displayLoginForm, submitting, pristine,
     handleSubmit, toggleLoginForm
   } = props;
-
-  if (displayLoginForm && !isLogged) {
+  if (displayLoginForm) {
     return (
       <AuthFormPane toggleLoginForm={toggleLoginForm}>
         <form className="login-form">
@@ -27,6 +36,7 @@ const LoginForm = (props) => {
               name="username"
               label="账号/Email："
               component={MaterialTextField}
+              validate={[required, userNameValidate]}
             />
           </div>
           <div>
@@ -35,6 +45,7 @@ const LoginForm = (props) => {
               label="密码："
               component={MaterialTextField}
               type="password"
+              validate={[required, passwordValidate]}
             />
           </div>
           <div>
@@ -60,14 +71,13 @@ LoginForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   displayLoginForm: PropTypes.bool,
   toggleLoginForm: PropTypes.func.isRequired,
-  isLogged: PropTypes.bool,
   ...propTypes
 };
 
 const mapStateToProps = (state) => {
   const {
     auth: { isLogged, refreshAuthentication },
-    ui: { popwindow: { displayLoginForm } }
+    ui: { app: { popwindow: { displayLoginForm } } }
   } = state;
 
   return {
@@ -77,17 +87,14 @@ const mapStateToProps = (state) => {
   };
 };
 
-
 const {
-  toggleLoginForm, toggleRegisterForm, refreshAuthentication, loadUser
+  toggleLoginForm, toggleRegisterForm, refreshAuthentication
 } = actions;
 export default reduxForm({
   form: 'loginForm',
   enableReinitialize: true,
   onSubmitSuccess: (result, dispatch) => {
-    dispatch(loadUser(result.data.name))
-      .then(() => dispatch(refreshAuthentication(true, result.data.name)));
-    // dispatch(refreshAuthentication(true, result.data.name));
+    dispatch(refreshAuthentication());
     dispatch(toggleLoginForm(false));
   }
 })(connect(mapStateToProps, {

@@ -1,14 +1,22 @@
+.article-page-container {
+  display: flex;
+    align-items: start;
+    max-width: 1200px;
+    margin: 64px auto 0;
+    height: calc(100vh - 64px);
+}
 .btn-edit {
   position: absolute;
   right: 20px;
   top: 75px;
 }
 .btn-edit a {
-  padding: 0.5em 4em;
+  padding: 0.5em 1em;
   text-decoration: none;
   display: block;
   background: rgba(233, 233, 233, 0.315);
   border: 1px solid rgba(175, 175, 175, 0.24);
   border-radius: 5px;
   color: rgb(105, 173, 200);
+  font-size: 12px;
 }

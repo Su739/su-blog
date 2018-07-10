@@ -35,8 +35,6 @@
   text-decoration: none;
   font-family: monospace;
 }
-@media (min-width: 768px) {
-  .bar-title {
-    margin: 0 auto;
-  }
+.bar-title {
+  margin: 0 auto;
 }

@@ -28,7 +28,7 @@ const fetchArticle = id => ({
     types: [ARTICLE_REQUEST, ARTICLE_SUCCESS, ARTICLE_FAILURE],
     endpoint: `a/${id}`,
     apischema: Schemas.ARTICLE,
-    result: 'article'
+    method: 'get'
   }
 });
 

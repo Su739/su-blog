@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import MaterialAppBar from '../components/MaterialAppBar';
@@ -13,7 +12,7 @@ class NavBar extends React.Component {
     isFetching: PropTypes.bool,
     screenResize: PropTypes.func.isRequired,
     toggleCatalog: PropTypes.func.isRequired,
-    // isLogged: PropTypes.bool,
+    displayLeftIcon: PropTypes.bool,
     loginName: PropTypes.string,
     ownerName: PropTypes.string,
     loginUser: PropTypes.objectOf(PropTypes.any),
@@ -25,10 +24,12 @@ class NavBar extends React.Component {
     window.addEventListener('resize', this.handleResize);// eslint-disable-line no-undef
 
     const {
-      loginName, ownerName, loadUser, blogOwner, refreshAuthentication
+      loginName, ownerName, loadUser, blogOwner, loginUser, refreshAuthentication
     } = this.props;
-    // refreshAuthentication();
-    if (loginName) {
+    if (process.env.NODE_ENV === 'production') {
+      refreshAuthentication();
+    }
+    if (loginName && !loginUser) {
       loadUser(loginName);
     }
     if (ownerName && !blogOwner) {
@@ -36,12 +37,10 @@ class NavBar extends React.Component {
     }
   }
   componentDidUpdate(prevProps) {
-    if (prevProps.ownerName !== this.props.ownerName) {
+    if (prevProps.ownerName !== this.props.ownerName && this.props.ownerName !== null) {
       this.props.loadUser(this.props.ownerName);
     }
-    console.log(prevProps);
-    console.log(this.props);
-    if (prevProps.loginName !== this.props.loginName) {
+    if (prevProps.loginName !== this.props.loginName && this.props.loginName !== null) {
       this.props.loadUser(this.props.loginName);
     }
   }
@@ -57,13 +56,13 @@ class NavBar extends React.Component {
 
   render() {
     const {
-      ownerName, loginName, loginUser, blogOwner, isFetching,
+      ownerName, loginName, loginUser, blogOwner, isFetching, displayLeftIcon,
       toggleCatalog: handleToggleCatalog, toggleLoginForm, refreshAuthentication
     } = this.props;
     return (
       <div>
         <MaterialAppBar
-          isFetching={isFetching}
+          isFetching={isFetching && !blogOwner}// isFetching仅能说明正在请求user，但请求的user不一定是blogOwner
           ownerName={ownerName}
           loginName={loginName}
           handleToggleCatalog={handleToggleCatalog}
@@ -72,6 +71,7 @@ class NavBar extends React.Component {
           blogOwner={blogOwner}
           toggleLoginForm={toggleLoginForm}
           refreshAuthentication={refreshAuthentication}
+          displayLeftIcon={displayLeftIcon}
         />
       </div>
     );
@@ -82,7 +82,7 @@ const mapStateToProps = (state, ownProps) => {
   const {
     auth: { isLogged, loginName },
     entities: { users },
-    ui: { screen: { width }, navbar: { isFetching } }
+    ui: { app: { screenSize: { width }, navbar: { isFetching } } }
   } = state;
 
   // 如果当前store中没有这个用户，显然返回undefined，然后参数在使用时要判断，没有的话要自己load，并处理ui渲染
@@ -108,8 +108,8 @@ const mapDispatchToProps = dispatch =>
     screenResize: (width, height) => dispatch(screenResize(width, height)),
     toggleCatalog: display => dispatch(toggleCatalog(display)),
     loadUser: username => dispatch(loadUser(username)),
-    refreshAuthentication: () => dispatch(refreshAuthentication()),
+    refreshAuthentication: (a, b) => dispatch(refreshAuthentication(a, b)),
     toggleLoginForm: display => dispatch(toggleLoginForm(display))
   });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavBar));
+export default connect(mapStateToProps, mapDispatchToProps)(NavBar);

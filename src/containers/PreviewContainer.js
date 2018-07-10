@@ -57,7 +57,7 @@ const mapStateToProps = (state, ownProps) => {
     },
     result,
     requestError: error,
-    ui: { preview: { isFetching } }
+    ui: { articlePage: { preview: { isFetching } } }
   } = state;
 
   let readmeid = null;

@@ -1,6 +1,6 @@
 .home-content {
   margin: 134px auto 0 auto;
-  width: 768px;
+  max-width: 768px;
 }
 @keyframes rotated {
   0% {
@@ -11,7 +11,7 @@
   }
 }
 .list-loader {
-  width: 20%;
+  width: 100px;
   margin: auto;
 }
 .list-loading {

@@ -9,7 +9,7 @@ const fetchArticleList = nextPageUrl => ({
     types: [ARTICLE_LIST_REQUEST, ARTICLE_LIST_SUCCESS, ARTICLE_LIST_FAILURE],
     endpoint: nextPageUrl || 'v0/articles',
     apischema: Schemas.articleListSchema,
-    result: 'articles'
+    method: 'get'
   }
 });
 

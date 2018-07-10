@@ -13,10 +13,29 @@ class HomePage extends React.Component {
     articles: PropTypes.objectOf(PropTypes.object),
     loadArticleList: PropTypes.func,
     updateLatestScroll: PropTypes.func,
+    refreshAuthentication: PropTypes.func,
     screenHeight: PropTypes.number,
-    latestScroll: PropTypes.number
+    curScroll: PropTypes.number
+  }
+  constructor(props) {
+    super(props);
+    /* eslint-disable no-undef */
+    this.state = {
+      isMobile: typeof navigator === 'undefined' ||
+      (navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPad/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/Windows Phone/i))
+    };
+    /* eslint-enable */
   }
   componentDidMount() {
+    if (process.env.NODE_ENV === 'production') {
+      this.props.refreshAuthentication();
+    }
     this.handleScroll = this.handleScroll.bind(this);
     this.loader = React.createRef();// 加载提示component
     // 每次加载HomePage，都要强制刷新articleList，列表加载成功后判断是否还有下一页，如果有增加scroll监听
@@ -36,9 +55,9 @@ class HomePage extends React.Component {
     if (this.loader.current) {
       const loaderOffsetTop = this.loader.current.offsetTop;// loader的当前位置
       const {
-        latestScroll, screenHeight, loadArticleList, articleList
+        curScroll, screenHeight, loadArticleList, articleList
       } = this.props;
-      if ((screenHeight + latestScroll) - loaderOffsetTop > 27) { // 滚动到loader附近
+      if ((screenHeight + curScroll) - loaderOffsetTop > 10) { // 滚动到loader附近
         if (articleList.nextPageUrl && !articleList.isFetching) { // 避免fetching时重复加载
           loadArticleList();
         }
@@ -49,8 +68,13 @@ class HomePage extends React.Component {
   }
 
   handleScroll() {
-    // eslint-disable-next-line no-undef
-    this.props.updateLatestScroll(document.documentElement.scrollTop);
+    /* eslint-disable no-undef */
+    if (this.state.isMobile) {
+      this.props.updateLatestScroll(document.body.scrollTop);
+    } else {
+      this.props.updateLatestScroll(document.documentElement.scrollTop);
+    }
+    /* eslint-enable */
   }
 
   render() {
@@ -83,16 +107,18 @@ const mapStateToProps = (state) => {
   const {
     entities: { articles },
     pagination: { articleList },
-    ui: { screen: { height }, latestScroll }
+    ui: { app: { screenSize: { height } }, homePage: { curScroll } }
   } = state;
   return {
-    latestScroll,
+    curScroll,
     articles,
     articleList,
     screenHeight: height
   };
 };
 
-const { loadArticleList, updateLatestScroll } = actions;
+const { loadArticleList, updateLatestScroll, refreshAuthentication } = actions;
 
-export default connect(mapStateToProps, { loadArticleList, updateLatestScroll })(HomePage);
+export default connect(mapStateToProps, {
+  loadArticleList, updateLatestScroll, refreshAuthentication
+})(HomePage);

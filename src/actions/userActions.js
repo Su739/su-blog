@@ -33,15 +33,15 @@ const fetchUser = username => ({
     types: [USER_REQUEST, USER_SUCCESS, USER_FAILURE],
     endpoint: `users/${username}`,
     apischema: Schemas.USER,
-    result: 'user'
+    method: 'get'
   }
 });
 
 // Fetches a single user from API unless it is cached.
 // Relies on Redux Thunk middleware.
-const loadUser = username => (dispatch, getState) => {
+const loadUser = (username, refresh) => (dispatch, getState) => {
   const user = getState().entities.users[username];
-  if (user) {
+  if (user && !refresh) {
     return Promise.resolve(null);
   }
   return dispatch(fetchUser(username));
