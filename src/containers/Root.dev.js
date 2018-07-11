@@ -4,16 +4,25 @@ import { Provider } from 'react-redux';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'; // v1.x
-import { MuiThemeProvider as V0MuiThemeProvider } from 'material-ui';
+import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Loadable from 'react-loadable';
 import DevTools from './DevTools';
 import NavBar from './NavBar';
 import LoginForm from './form/LoginForm';
 import Error404 from '../components/Error404';
-import ArticlePage from './view/ArticlePage';
-import EditorPage from './view/EditorPage';
 import UserPage from './view/UserPage';
 import HomePage from './view/HomePage';
+import EditorLoadingPage from '../components/EditorLoadingPage';
 
+const EditorPage = Loadable({
+  loader: () => import('./view/EditorPage'),
+  loading: EditorLoadingPage
+});
+
+const ArticlePage = Loadable({
+  loader: () => import('./view/ArticlePage'),
+  loading: EditorLoadingPage
+});
 
 const Root = ({ store }, ...props) => (
   <Provider store={store}>
