@@ -48,12 +48,12 @@ const MaterialCatalog = (props) => {
     isEditor, isFetching,
     articles, url, bookid, history,
     screenWidth, displayCatalog, expanded, hasNewArticle,
-    toolMethods, handleToggleCatalog, toggleExpandBtn, toggleBlockedModal, addBlockedArticle,
-    addArticle
+    handleToggleCatalog, toggleExpandBtn, toggleBlockedModal, addBlockedArticle,
+    addArticle, onArticleDeleteClick
   } = props;
   let initialPage = null;
   const catalogList = [];
-  const bySuperior = {}; // 按照superior分类，值为该superior的文章数
+  const bySuperior = {}; // 按照superior分类，superior最为键，值是order
   // 对文章进行排序，生成目录
   if (articles && articles.length > 0) {
     if (isEditor) {
@@ -61,9 +61,12 @@ const MaterialCatalog = (props) => {
       sorted.forEach(r =>
         r.forEach((item) => {
           if (bySuperior[item.superior]) {
-            bySuperior[item.superior] += 1;
+            // 取order的最大值
+            if (item.order > bySuperior[item.superior]) {
+              bySuperior[item.superior] = item.order;
+            }
           } else {
-            bySuperior[item.superior] = 1;
+            bySuperior[item.superior] = item.order; // 也就是1。。。
           }
         }));
       sorted.forEach(r =>
@@ -79,7 +82,6 @@ const MaterialCatalog = (props) => {
               url={`${url}/${id}`}
               id={id}
               superior={superior}
-              toolMethods={toolMethods}
               isEditor={isEditor}
             />);
           } else {
@@ -90,7 +92,6 @@ const MaterialCatalog = (props) => {
               url={`${url}/${id}`}
               id={id}
               superior={superior}
-              toolMethods={toolMethods}
               isEditor={isEditor}
               bySuperior={bySuperior}
               toggleBlockedModal={toggleBlockedModal}
@@ -98,6 +99,7 @@ const MaterialCatalog = (props) => {
               addBlockedArticle={addBlockedArticle}
               addArticle={addArticle}
               bookid={bookid}
+              onArticleDeleteClick={onArticleDeleteClick}
               history={history}
             />);
           }
@@ -173,7 +175,7 @@ const MaterialCatalog = (props) => {
               addBlockedArticle(-1, 0, order, 0, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
               toggleBlockedModal(true);
             } else {
-              toolMethods.addArticle(-1, 0, order, 0, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
+              addArticle(-1, 0, order, 0, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
               history.push(`${url}/-1`); // 转到 articleid为 -1
             }
           }}
@@ -190,7 +192,6 @@ MaterialCatalog.propTypes = {
   articles: PropTypes.arrayOf(PropTypes.object),
   url: PropTypes.string,
   isEditor: PropTypes.bool,
-  toolMethods: PropTypes.objectOf(PropTypes.func),
   displayCatalog: PropTypes.bool,
   handleToggleCatalog: PropTypes.func,
   isFetching: PropTypes.bool,
@@ -198,6 +199,7 @@ MaterialCatalog.propTypes = {
   toggleBlockedModal: PropTypes.func,
   addArticle: PropTypes.func,
   addBlockedArticle: PropTypes.func,
+  onArticleDeleteClick: PropTypes.func,
   bookid: PropTypes.number
 };
 

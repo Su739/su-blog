@@ -68,7 +68,6 @@ function sortCatalog(obj, id = 'id', superior = 'superior') {
   if (!obj || typeof obj !== 'object' || !Array.isArray(obj)) {
     throw new Error('输入一个object类型数据第一个参数');
   }
-
   const resource = Array.isArray(obj) ?
     obj.slice()
     :
@@ -77,7 +76,6 @@ function sortCatalog(obj, id = 'id', superior = 'superior') {
   const byDepth = {}; // 按照depth分类的集合
   const arrDepth = []; // depth序号(确定顺序desc)数组
   const compare = (v1, v2) => parseInt(v2, 10) - parseInt(v1, 10);
-
   /*
   // 把arrary(object) 转换为 key-value集合，其中key是superior字段，value是数组中的元素组成的数组
   // 哈哈，而没想到这段用的'.'，然后superior是undefined，第一次在else加入后全是undefined，

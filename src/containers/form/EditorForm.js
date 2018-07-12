@@ -53,11 +53,10 @@ class EditorForm extends React.Component {
         loadArticle(articleid).then((res) => {
           if (!res.requestError) {
             const {
-              id, depth, order, superior, title, content, parent, public: ispublic
+              id, depth, order, superior, title, content, parent, ispublic
             } = res.response.entities.articles[articleid];
             updateArticle({
-              // 哎～字段里用了js保留字public，应该该过来。。。
-              id, depth, order, superior, title, content, parent, public: ispublic
+              id, depth, order, superior, title, content, parent, ispublic
             });
           }
         });
@@ -158,7 +157,7 @@ const mapStateToProps = (state, ownProps) => {
 
   const {
     entities: { books, articles, users },
-    editingData: { articlesById, newArticle },
+    editingData: { articlesById, newArticle, blockedArticle },
     requestError
   } = state;
   const writerid = users[username].id;
@@ -190,12 +189,14 @@ const mapStateToProps = (state, ownProps) => {
     articleid: parseInt(articleid, 10) || parseInt(readmeid, 10),
     initialValues: { ...article, writerid },
     articlesById,
+    blockedArticle,
     requestError
   };
 };
 
 const {
-  loadArticle, removeArticle, resetRequestError, updateArticle, toggleLoginForm
+  loadArticle, removeArticle, resetRequestError, updateArticle, toggleLoginForm, addArticle,
+  removeBlockedArticle
 } = actions;
 
 export default withRouter(connect(mapStateToProps, {
@@ -208,12 +209,20 @@ export default withRouter(connect(mapStateToProps, {
   onSubmitSuccess: (result, dispatch, props) => {
     const article = Array.isArray(result.data) ? result.data[0] : result.data;
     const { username, bookid, articleid } = props.match.params;
-    // 在这里destroy而不是在提交时的原因，是如果提交时destory
-    // dispatch(loadBook(article.parent));
+
     props.updateMessage(true, '文章提交成功！');
-    dispatch(loadArticle(article.id, true)); // 这个load会造成闪屏，如果不想闪屏就要使用addEntity，而不是重新加载
     dispatch(removeArticle(-1));
     dispatch(updateArticle(article));
+    dispatch(loadArticle(article.id, true))
+      .then(() => {
+        if (props.blockedArticle) {
+          const {
+            id, depth, order, superior, title, content, parent, ispublic
+          } = props.blockedArticle;
+          dispatch(addArticle(id, depth, order, superior, title, content, parent, ispublic));
+          dispatch(removeBlockedArticle());
+        }
+      }); // 这个load会造成闪屏，如果不想闪屏就要使用addEntity，而不是重新加载
     if (articleid === -1) {
       props.history.replace(`/${username}/book/${bookid}/~/edit/${article.id}`);
     }

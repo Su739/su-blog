@@ -18,8 +18,9 @@ const updateArticleEntity = article => ({
   article
 });
 
-const deleteArticleEntity = id => ({
+const deleteArticleEntity = (id, parent) => ({
   type: DELETE_ARTICLE_ENTITY,
+  parent,
   id
 });
 

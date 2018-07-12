@@ -22,13 +22,7 @@ const BlockedArticleDialog = (props) => {
       okText="保存，并新建文章"
       refuseText="不保存，并新建文章"
       onOkClick={() => {
-        const {
-          id, depth, order, superior, title, content, parent, public: ispublic
-        } = blockedArticle;
         submitArticle();
-        removeArticle(-1);
-        removeBlockedArticle();
-        addArticle(id, depth, order, superior, title, content, parent, ispublic);
         toggleBlockedModal(false);
       }}
       onRefuseClick={() => {

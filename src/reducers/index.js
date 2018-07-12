@@ -65,6 +65,14 @@ const books = (state = {}, action) => {
           articles: state[action.bookid].articles.concat(action.article.id)
         }
       };
+    case articleTypes.DELETE_ARTICLE_ENTITY:
+      return {
+        ...state,
+        [action.parent]: {
+          ...state[action.parent],
+          articles: state[action.parent].articles.filter(a => a !== parseInt(action.id, 10))
+        }
+      };
     case bookTypes.ADD_BOOK_ENTITY:
       return { ...state, [action.book.id]: action.book };
     case bookTypes.UPDATE_BOOK_ENTITY:
@@ -82,6 +90,8 @@ const articles = (state = {}, action) => {
       return { ...state, [action.article.id]: action.article };
     case articleTypes.UPDATE_ARTICLE_ENTITY:
       return { ...state, [action.article.id]: action.article };
+    case articleTypes.DELETE_ARTICLE_ENTITY:
+      return omit(state, [[action.id]]);
     case bookTypes.DELETE_BOOK_ENTITY:
       return omit(state, Object.keys(state).map(a => a === action.id));
     default:
@@ -201,7 +211,7 @@ const editingData = (state = {}, action) => {
       };
     // 删除数据集合中的 -1项，删除newArticle
     case editingDataTypes.REMOVE_ARTICLE:
-      if (state.articlesById[action.id]) {
+      if (state.articlesById[action.id] && action.id === -1) {
         return omit({
           ...state,
           articlesById: omit(state.articlesById, [action.id]),
@@ -209,11 +219,25 @@ const editingData = (state = {}, action) => {
             ...state.booksById,
             [state.articlesById[action.id].parent]: {
               ...state.booksById[state.articlesById[action.id].parent],
-              articles: state.booksById[state.articlesById[action.id].parent]
-                .articles.slice(0, -1)
+              articles: state.booksById[
+                state.articlesById[action.id].parent
+              ].articles.filter(a => a !== parseInt(action.id, 10))
             }
           }
         }, ['newArticle']);
+      } else if (state.articlesById[action.id]) {
+        return {
+          ...state,
+          articlesById: omit(state.articlesById, [action.id]),
+          booksById: {
+            ...state.booksById,
+            [state.articlesById[action.id].parent]: {
+              ...state.booksById[state.articlesById[action.id].parent],
+              articles: state.booksById[state.articlesById[action.id].parent]
+                .articles.filter(a => a !== parseInt(action.id, 10))
+            }
+          }
+        };
       }
       return state;
     case editingDataTypes.ADD_BLOCKED_ARTICLE:

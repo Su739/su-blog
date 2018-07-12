@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import actions from '../actions';
 import MaterialCatalog from '../components/MaterialCatalog';
 
 class CatalogContainer extends React.Component {
   static propTypes = {
     history: PropTypes.objectOf(PropTypes.any),
-    location: PropTypes.objectOf(PropTypes.any),
+    url: PropTypes.string,
     isEditor: PropTypes.bool,
     expanded: PropTypes.objectOf(PropTypes.bool),
     toggleExpandBtn: PropTypes.func.isRequired,
@@ -16,10 +17,9 @@ class CatalogContainer extends React.Component {
     toggleBlockedModal: PropTypes.func,
     addArticle: PropTypes.func,
     addBlockedArticle: PropTypes.func,
-    destroyNewArticle: PropTypes.func,
+    onArticleDeleteClick: PropTypes.func,
     hasNewArticle: PropTypes.bool,
     isFetching: PropTypes.bool,
-    url: PropTypes.string,
     // loadUser: PropTypes.func.isRequired,
     loadBook: PropTypes.func.isRequired,
     bookid: PropTypes.number,
@@ -44,10 +44,10 @@ class CatalogContainer extends React.Component {
   }
   render() {
     const {
-      bookArticles, isFetching, displayCatalog, screenWidth,
-      expanded, url, isEditor, bookid, history, location,
+      bookArticles, isFetching, displayCatalog, screenWidth, history,
+      expanded, url, isEditor, bookid,
       toggleCatalog, toggleExpandBtn, toggleBlockedModal,
-      destroyNewArticle, hasNewArticle, addArticle, addBlockedArticle
+      hasNewArticle, addArticle, addBlockedArticle, onArticleDeleteClick
     } = this.props;
     return (
       <MaterialCatalog
@@ -60,26 +60,25 @@ class CatalogContainer extends React.Component {
         expanded={expanded}// 目录中被折叠的项目
         url={url}
         isEditor={isEditor}
-        toolMethods={{ addArticle, destroyNewArticle }}
         toggleBlockedModal={toggleBlockedModal}
         hasNewArticle={hasNewArticle}
         bookid={bookid}
         addBlockedArticle={addBlockedArticle}
         addArticle={addArticle}
+        onArticleDeleteClick={onArticleDeleteClick}
         history={history}
-        location={location}
       />
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { bookid, isEditor } = ownProps;
+  const { match: { params: { bookid } }, isEditor } = ownProps;
+
   const {
     entities: {
       books, articles
     },
-    result,
     ui: {
       app: {
         catalog: { displayCatalog, isFetching, expanded },
@@ -99,8 +98,7 @@ const mapStateToProps = (state, ownProps) => {
       isFetching,
       screenWidth,
       bookid: parseInt(bookid, 10),
-      hasNewArticle: newArticle,
-      result
+      hasNewArticle: !!newArticle
     };
   }
 
@@ -114,17 +112,16 @@ const mapStateToProps = (state, ownProps) => {
     isFetching,
     screenWidth,
     expanded,
-    hasTemp: true,
-    result
+    hasTemp: true
   };
 };
 
 const {
   loadBook, toggleCatalog, refreshAuthentication, toggleExpandBtn, toggleBlockedModal,
-  addArticle, removeArticle, addBlockedArticle
+  addArticle, addBlockedArticle, addDeletingArticles
 } = actions;
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   {
     loadBook,
@@ -132,8 +129,8 @@ export default connect(
     refreshAuthentication,
     toggleExpandBtn,
     addArticle,
-    removeArticle,
     addBlockedArticle,
-    toggleBlockedModal
+    toggleBlockedModal,
+    addDeletingArticles
   },
-)(CatalogContainer);
+)(CatalogContainer));

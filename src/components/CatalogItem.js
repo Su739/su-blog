@@ -4,7 +4,6 @@ import { NavLink } from 'react-router-dom';
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
-import Divider from 'material-ui/Divider';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import Delete from 'material-ui/svg-icons/action/delete';
 import Add from 'material-ui/svg-icons/content/add';
@@ -13,7 +12,7 @@ import Expand from 'material-ui/svg-icons/navigation/expand-more';
 
 
 const ItemTools = (props) => {
-  const { toolMethod: { newArticle, deleteArticle } } = props;
+  const { newArticle, deleteArticle, allowAddNew } = props;
   return (
     <IconMenu
       iconButtonElement={
@@ -26,28 +25,21 @@ const ItemTools = (props) => {
       targetOrigin={{ horizontal: 'middle', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
-      <MenuItem onClick={newArticle} leftIcon={<Add />} primaryText="新文章" />
-      <Divider />
+      {allowAddNew ? <MenuItem onClick={newArticle} leftIcon={<Add />} primaryText="新文章" /> : null}
       <MenuItem onClick={deleteArticle} leftIcon={<Delete />} primaryText="删除" />
     </IconMenu>
   );
 };
 ItemTools.propTypes = {
-  toolMethod: PropTypes.shape({
-    newArticle: PropTypes.func,
-    deleteArticle: PropTypes.func
-  })
+  newArticle: PropTypes.func,
+  deleteArticle: PropTypes.func,
+  allowAddNew: PropTypes.bool
 };
 
 // store 中维护被选中状态，折叠状态由自己的state维护
 class CatalogItem extends React.Component {
   static propTypes = {
     history: PropTypes.objectOf(PropTypes.any),
-    toolMethods: PropTypes.shape({
-      newArticle: PropTypes.func,
-      editArticle: PropTypes.func,
-      deleteArticle: PropTypes.func
-    }),
     bookid: PropTypes.number,
     url: PropTypes.string,
     title: PropTypes.string,
@@ -63,15 +55,10 @@ class CatalogItem extends React.Component {
     hasNewArticle: PropTypes.bool,
     toggleBlockedModal: PropTypes.func,
     addArticle: PropTypes.func,
-    addBlockedArticle: PropTypes.func
+    addBlockedArticle: PropTypes.func,
+    onArticleDeleteClick: PropTypes.func
   }
-  static defaultProps = {
-    url: '/123',
-    isSelected: false,
-    toolMethods: {},
-    title: 'aaaaaaaaaaaa爱仕达所大所多撒多爱仕达所大所大所多aaaaaaaaaaa',
-    depth: 1
-  }
+
   constructor(props) {
     super(props);
     this.onExpandClick = this.onExpandClick.bind(this);
@@ -89,10 +76,13 @@ class CatalogItem extends React.Component {
     const {
       expanded, isEditor, expandable, bySuperior, hasNewArticle,
       url, title, depth, id, superior, bookid, history,
-      handleToggleCatalog, toggleBlockedModal, toolMethods, addBlockedArticle, addArticle
+      handleToggleCatalog, toggleBlockedModal,
+      addBlockedArticle, addArticle, onArticleDeleteClick
     } = this.props;
-    if (isEditor) { // 当前存在未保存的"新文章", 此时弹出模态框提供选择
+    if (isEditor) {
+      // 新建文章
       const newArticle = () => {
+        // 当前存在未保存的"新文章", 此时弹出模态框提供选择
         if (hasNewArticle) {
           addBlockedArticle(-1, depth + 1, bySuperior[id] ? bySuperior[id] + 1 : 1, id, '未命名', '\n\n\n\n\n\n\n\n', bookid, true);
           toggleBlockedModal(true);
@@ -101,6 +91,7 @@ class CatalogItem extends React.Component {
           history.push(url.replace(/\/[^/]*$/, '/-1'));
         }
       };
+
       // 只有editor才会padding-left 7%，所以没写在类里
       return (
         <div className="catalog-item" style={{ paddingLeft: `${depth * 12}px` }}>
@@ -110,9 +101,11 @@ class CatalogItem extends React.Component {
             </NavLink>
           </div>
           <div className="catalog-item-tool">
-            <ItemTools
-              toolMethod={{ newArticle }}
-            />
+            {superior !== -1 && <ItemTools // 暂时不允许删除前言。。
+              newArticle={newArticle}
+              allowAddNew={id !== -1} // 不允许在新建文章下面建子文章
+              deleteArticle={() => onArticleDeleteClick(id)}
+            />}
           </div>
         </div>
       );

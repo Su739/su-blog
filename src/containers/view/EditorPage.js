@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { submit } from 'redux-form';
+import axios from 'axios';
 import IconButton from 'material-ui/IconButton';
 import SwapHoriz from 'material-ui/svg-icons/action/swap-horiz';
 import Help from 'material-ui/svg-icons/action/help';
@@ -10,6 +11,7 @@ import Image from 'material-ui/svg-icons/image/image';
 import Save from 'material-ui/svg-icons/content/save';
 import CircularProgress from 'material-ui/CircularProgress';
 import Snackbar from 'material-ui/Snackbar';
+import Modal from '../../components/Modal';
 import BlockedArticleDialog from '../BlockedArticleDialog';
 import actions from '../../actions';
 import CatalogContainer from '../CatalogContainer';
@@ -17,7 +19,12 @@ import EditorForm from '../form/EditorForm';
 import EditorPreviewer from '../../components/EditorPreviewer';
 import Error404 from '../../components/Error404';
 import EditorLoadingPage from '../../components/EditorLoadingPage';
+import rootUrl from '../../utils/rootUrl';
 import './EditorPage.css';
+
+
+const deleteArticleById = id =>
+  axios.delete(`${rootUrl}/api/a/${id}`, { withCredentials: true });
 
 const ToolButton = props => (
   <IconButton
@@ -45,13 +52,18 @@ class EditorPage extends React.Component {
     super(props);
     this.state = {
       open: false,
-      snackbarMessage: ''
+      snackbarMessage: '',
+      deleteArticleWarning: false
     };
     this.updateMessage = this.updateMessage.bind(this);
+    this.onArticleDeleteClick = this.onArticleDeleteClick.bind(this);
+    this.executeDelete = this.executeDelete.bind(this);
+    this.cancelDelete = this.cancelDelete.bind(this);
+    this.deleteSuccess = this.deleteSuccess.bind(this);
   }
   componentDidMount() {
     const {
-      loadBook, loadingEditor, bookid, initialEditingData, books, articles
+      loadBook, loadingEditor, bookid, initialEditingData, books, articles, refreshAuthentication
     } = this.props;
     // 当通过输入栏手动输入url或者点击写文章按钮时，url中不含有articleid参数，而且很可能这时候也没有加载book，
     // 导致暂时无法获得书中superior为-1的项(readme文章，现在还没有好办法，就用了这个办法)
@@ -71,15 +83,15 @@ class EditorPage extends React.Component {
     }
     */
     // 刷新登录状态
-    // refreshAuthentication().then();
-    if (books[bookid]) {
+    refreshAuthentication();
+    if (books[bookid] && books[bookid].articles) {
       initialEditingData(articles, books);
       loadingEditor(false);
     } else {
       loadBook(bookid)
         .then((res) => {
           if (!res.requestError) {
-            const { books: resBooks, resArticles } = res.response.entities;
+            const { books: resBooks, articles: resArticles } = res.response.entities;
             initialEditingData(resArticles, resBooks);
             loadingEditor(false);
           }
@@ -113,6 +125,11 @@ class EditorPage extends React.Component {
     this.props.loadingEditor(true);
   }
 
+  onArticleDeleteClick(id) {
+    this.props.addDeletingArticles(id);
+    this.setState({ deleteArticleWarning: true });
+  }
+
   updateMessage(open, message) {
     this.setState({
       open,
@@ -120,9 +137,40 @@ class EditorPage extends React.Component {
     });
   }
 
+  cancelDelete() {
+    this.props.destroyDeletingArticles();
+    this.setState({ deleteArticleWarning: false });
+  }
+
+  executeDelete() {
+    const { deletingArticles } = this.props;
+    if (deletingArticles[0] !== -1) {
+      return deleteArticleById(deletingArticles[0]);
+    }
+    return Promise.resolve({ data: { id: -1 } });
+  }
+
+  deleteSuccess(res) {
+    const {
+      removeArticle, articleid, history, deleteArticleEntity
+    } = this.props;
+
+    this.setState({ open: true, snackbarMessage: `id为: ${res.data.id} 的文章删除成功` });
+    // 这个顺序会影响目录的生成
+    if (parseInt(articleid, 10) === parseInt(res.data.id, 10)) {
+      history.goBack();
+    }
+
+    // 这个顺序会影响目录的生成
+    removeArticle(res.data.id);
+    if (res.data.id !== -1) {
+      deleteArticleEntity(res.data.id, res.data.parent);
+    }
+  }
+
   render() {
     const {
-      submitArticle, match, isLogged, isFetching, formValues, requestError, loading, history
+      submitArticle, match, isLogged, isFetching, formValues, requestError, loading
     } = this.props;
     if (requestError) {
       return <Error404 statusCode={requestError.status} message={requestError.message} />;
@@ -140,12 +188,21 @@ class EditorPage extends React.Component {
             onRequestClose={() => this.setState({ open: false, snackbarMessage: '' })}
           />
           <BlockedArticleDialog />
+          <Modal
+            maskClose
+            closeCB={this.cancelDelete}
+            display={this.state.deleteArticleWarning}
+            tips="确定要删除这篇文章么？"
+            okText="确定"
+            cancelText="取消"
+            onOkClick={this.executeDelete}
+            onCancelClick={this.cancelDelete}
+            resolvedCB={res => this.deleteSuccess(res)}
+          />
           <CatalogContainer
-              // 当将history传入进去后，之前的navlink active就会起作用，因为每次点击之后history会变，座椅catalog会re-render
-            history={history}
             url={`/${match.params.username}/book/${match.params.bookid}/~/edit`}
             isEditor
-            bookid={parseInt(match.params.bookid, 10)}
+            onArticleDeleteClick={this.onArticleDeleteClick}
           />
           <div className="editor-and-previewer">
             {
@@ -207,19 +264,25 @@ EditorPage.propTypes = {
   books: PropTypes.objectOf(PropTypes.any),
   articles: PropTypes.objectOf(PropTypes.any),
   articleid: PropTypes.number,
-  history: PropTypes.objectOf(PropTypes.any),
+  refreshAuthentication: PropTypes.func,
   loadBook: PropTypes.func,
   loadingEditor: PropTypes.func,
   resetRequestError: PropTypes.func,
   bookid: PropTypes.number,
   initialEditingData: PropTypes.func,
   destroyDeitingData: PropTypes.func,
+  deletingArticles: PropTypes.arrayOf(PropTypes.number),
+  destroyDeletingArticles: PropTypes.func,
+  addDeletingArticles: PropTypes.func,
+  deleteArticleEntity: PropTypes.func,
+  removeArticle: PropTypes.func,
   match: PropTypes.shape({
     isExact: PropTypes.bool,
     params: PropTypes.object.isRequired,
     path: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired
   }),
+  history: PropTypes.objectOf(PropTypes.any),
   isLogged: PropTypes.bool,
   isFetching: PropTypes.bool,
   formValues: PropTypes.objectOf(PropTypes.any),
@@ -236,7 +299,8 @@ const mapStateToProps = (state, ownProps) => {
     ui: { editorPage: { isFetching, loading, displayBlockedModal } },
     form,
     requestError,
-    editingData: { hasNewArticle }
+    editingData: { hasNewArticle },
+    deletingData: { deletingArticles }
   } = state;
   const formValues = form && form.editorForm && form.editorForm.values;
   /*
@@ -262,13 +326,17 @@ const mapStateToProps = (state, ownProps) => {
     formValues,
     requestError,
     hasNewArticle,
+    deletingArticles,
     displayBlockedModal
   };
 };
 
+
+// removeArticle是删除editingData中的article，名字不太贴切。。。
 const {
-  loadBook, loadArticle, loadingEditor, initialEditingData,
-  destroyDeitingData, resetRequestError, refreshAuthentication
+  loadBook, loadArticle, loadingEditor, initialEditingData, deleteArticleEntity,
+  addDeletingArticles, destroyDeitingData, resetRequestError, refreshAuthentication,
+  destroyDeletingArticles, removeArticle
 } = actions;
 const submitArticle = () => submit('editorForm');
 
@@ -279,6 +347,10 @@ export default withRouter(connect(mapStateToProps, {
   loadingEditor,
   initialEditingData,
   resetRequestError,
+  addDeletingArticles,
   destroyDeitingData,
+  destroyDeletingArticles,
+  deleteArticleEntity,
+  removeArticle,
   refreshAuthentication
 })(EditorPage));
