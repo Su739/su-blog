@@ -11,6 +11,19 @@ import Error404 from '../components/Error404';
 import HomePage from './view/HomePage';
 import EditorLoadingPage from '../components/EditorLoadingPage';
 
+const EditorPage = Loadable({
+  loader: () => import('./view/EditorPage'),
+  loading: EditorLoadingPage
+});
+const ArticlePage = Loadable({
+  loader: () => import('./view/ArticlePage'),
+  loading: EditorLoadingPage
+});
+const UserPage = Loadable({
+  loader: () => import('./view/UserPage'),
+  loading: EditorLoadingPage
+});
+
 const Root = ({ store }) => (
   <Provider store={store}>
     <div>
@@ -23,34 +36,19 @@ const Root = ({ store }) => (
               <Route
                 path="/:username"
                 render={
-                    ({ match }) => {
-                      const EditorPage = Loadable({
-                        loader: () => import('./view/EditorPage'),
-                        loading: EditorLoadingPage
-                      });
-                      const ArticlePage = Loadable({
-                        loader: () => import('./view/ArticlePage'),
-                        loading: EditorPage
-                      });
-                      const UserPage = Loadable({
-                        loader: () => import('./view/UserPage'),
-                        loading: EditorLoadingPage
-                      });
-                      return (
-                        <div>
-                          <NavBar ownerName={match.params.username} />
-                          <div className="content">
-                            <Switch>
-                              <Route exact path="/:username" component={UserPage} />
-                              <Route exact path="/:username/book/:bookid/~/edit" component={EditorPage} />
-                              <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorPage} />
-                              <Route path="/:username/book/:bookid" component={ArticlePage} />
-                              <Route path="/" component={Error404} />
-                            </Switch>
-                          </div>
+                    ({ match }) => (
+                      <div>
+                        <NavBar ownerName={match.params.username} />
+                        <div className="content">
+                          <Switch>
+                            <Route exact path="/:username" component={UserPage} />
+                            <Route path="/:username/book/:bookid/~/edit/:articleid*" component={EditorPage} />
+                            <Route path="/:username/book/:bookid" component={ArticlePage} />
+                            <Route path="/" component={Error404} />
+                          </Switch>
                         </div>
-                      );
-                    }
+                      </div>
+                    )
                   }
               />
               <Route path="/" component={Error404} />

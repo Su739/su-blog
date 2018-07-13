@@ -29,8 +29,7 @@ class ArticlePage extends React.Component {
         />
         <div className="article-pane">
           <Switch>
-            <Route path="/:username/book/:bookid/a/:articleid" component={PreviewContainer} />
-            <Route exact path="/:username/book/:bookid" component={PreviewContainer} />
+            <Route path="/:username/book/:bookid/a/:articleid*" component={PreviewContainer} />
             <Route path="/" component={Error404} />
           </Switch>
         </div>

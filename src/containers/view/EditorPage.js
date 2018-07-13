@@ -218,12 +218,7 @@ class EditorPage extends React.Component {
             <div className="editor-container">
               <Switch>
                 <Route
-                  path="/:username/book/:bookid/~/edit/:articleid"
-                  render={() => <EditorForm updateMessage={this.updateMessage} />}
-                />
-                <Route
-                  exact
-                  path="/:username/book/:bookid/~/edit"
+                  path="/:username/book/:bookid/~/edit/:articleid*"
                   render={() => <EditorForm updateMessage={this.updateMessage} />}
                 />
                 <Route path="/" component={Error404} />

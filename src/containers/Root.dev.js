@@ -10,7 +10,6 @@ import DevTools from './DevTools';
 import NavBar from './NavBar';
 import LoginForm from './form/LoginForm';
 import Error404 from '../components/Error404';
-import UserPage from './view/UserPage';
 import HomePage from './view/HomePage';
 import EditorLoadingPage from '../components/EditorLoadingPage';
 
@@ -18,9 +17,12 @@ const EditorPage = Loadable({
   loader: () => import('./view/EditorPage'),
   loading: EditorLoadingPage
 });
-
 const ArticlePage = Loadable({
   loader: () => import('./view/ArticlePage'),
+  loading: EditorLoadingPage
+});
+const UserPage = Loadable({
+  loader: () => import('./view/UserPage'),
   loading: EditorLoadingPage
 });
 
@@ -43,8 +45,7 @@ const Root = ({ store }, ...props) => (
                         <div className="content">
                           <Switch>
                             <Route exact path="/:username" component={UserPage} />
-                            <Route exact path="/:username/book/:bookid/~/edit" component={EditorPage} />
-                            <Route path="/:username/book/:bookid/~/edit/:articleid" component={EditorPage} />
+                            <Route path="/:username/book/:bookid/~/edit/:articleid*" component={EditorPage} />
                             <Route path="/:username/book/:bookid" component={ArticlePage} />
                             <Route path="/" component={Error404} />
                           </Switch>

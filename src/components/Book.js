@@ -23,7 +23,7 @@ const Book = (props) => {
   return (
     <div className="book-pinned">
       <div className="book-pinned-content">
-        <Link to={`/${username}/book/${id}`} className="book-pinned-title">{name}</Link>
+        <Link to={`/${username}/book/${id}/a`} className="book-pinned-title">{name}</Link>
         <span className="book-pinned-post-date">{dateFormatter(createdAt)}</span>
         <p className="book-pinned-description">{description}</p>
       </div>
